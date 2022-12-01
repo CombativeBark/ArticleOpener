@@ -1,11 +1,13 @@
 ﻿using ArticleOpenUI.Models;
 using Caliburn.Micro;
+using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Navigation;
 
 namespace ArticleOpenUI.ViewModels
@@ -42,21 +44,58 @@ namespace ArticleOpenUI.ViewModels
 			
 			foreach (var number in articleNumbers)
 			{
-				if (IsNewArticle(number))
+				if (!IsInQueue(number))
 					_articleQueue.Add(new ArticleModel(number));
 			}
 
 			UpdateQueueDisplay();
 		}
 
-        private bool IsNewArticle(string articleNumber)
+		public void OpenAll()
+		{
+			Open(ArticleOpenMode.All);
+		}
+
+		private void Open(ArticleOpenMode openMode)
+		{
+			foreach (var article in _articleQueue)
+			{
+				switch (openMode)
+				{
+					case ArticleOpenMode.All:
+						article.OpenAll();
+						break;
+					case ArticleOpenMode.FoldersOnly: 
+						article.OpenFolder();
+						break;
+					case ArticleOpenMode.InfoOnly:
+						article.OpenInfo();
+						break;
+					case ArticleOpenMode.ToolsOnly: 
+						if (article.Type == ArticleType.Tool || article.Type == ArticleType.Modification)
+							article.OpenAll();
+						break;
+					case ArticleOpenMode.PartsOnly: 
+						if (article.Type == ArticleType.Plastic || article.Type == ArticleType.PlasticVariant)
+							article.OpenAll();
+						break;
+					case ArticleOpenMode.None: 
+						break;
+					default:
+						throw new NotImplementedException();
+
+				}
+			}
+		}
+
+        private bool IsInQueue(string inputArticle)
         {
 			foreach (var article in _articleQueue)
 			{
-				if (article.Name.Equals(articleNumber))
-					return false;
+				if (article.Name.Equals(inputArticle))
+					return true;
 			}
-			return true;
+			return false;
         }
 
         List<string> SplitString(string input)
