@@ -13,45 +13,45 @@ namespace ArticleOpenUI.ViewModels
 
     class ShellViewModel : Screen
     {
-		private List<ArticleModel> _articles = new();
-		private string _input = "";
-		private string _displayedArticles = "";
+		private List<ArticleModel> _articleQueue = new();
+		private string _inputText = "";
+		private string _queueDisplay = "";
 
-		public string Input
+		public string InputText
 		{
-			get { return _input; }
+			get { return _inputText; }
 			set
 			{
-				_input = value;
-				NotifyOfPropertyChange(() => Input);
+				_inputText = value;
+				NotifyOfPropertyChange(() => InputText);
 			}
 		}
-        public string DisplayedArticles 
+        public string QueueDisplay 
 		{
-			get { return _displayedArticles; }
+			get { return _queueDisplay; }
 			set
 			{
-				_displayedArticles = value;
-				NotifyOfPropertyChange(() => DisplayedArticles);
+				_queueDisplay = value;
+				NotifyOfPropertyChange(() => QueueDisplay);
 			} 
 		}
 
 		public void SearchArticle()
 		{
-			var articleNumbers = ParseInput(Input);
+			var articleNumbers = SplitString(InputText);
 			
-			foreach ( var artNumber in articleNumbers )
+			foreach (var number in articleNumbers)
 			{
-				if (IsNewArticle(artNumber))
-					_articles.Add(new ArticleModel(artNumber));
+				if (IsNewArticle(number))
+					_articleQueue.Add(new ArticleModel(number));
 			}
 
-			UpdateArticleNumberDisplay();
+			UpdateQueueDisplay();
 		}
 
         private bool IsNewArticle(string articleNumber)
         {
-			foreach (var article in _articles )
+			foreach (var article in _articleQueue)
 			{
 				if (article.Name.Equals(articleNumber))
 					return false;
@@ -59,25 +59,25 @@ namespace ArticleOpenUI.ViewModels
 			return true;
         }
 
-        List<string> ParseInput(string input)
+        List<string> SplitString(string input)
 		{
 			List<string> result = new();
 
-			var splitInput = input.Split(new char[] { ' ', '.', ':', ',', ';' });
-			foreach ( var item in splitInput )
+			var splitString = input.Split(new char[] { ' ', '.', ':', ',', ';' });
+			foreach (var substring in splitString)
 			{
-				result.Add(item);
+				result.Add(substring);
 			}
 
 			return result;
 		}
 
-		void UpdateArticleNumberDisplay()
+		void UpdateQueueDisplay()
 		{
-			DisplayedArticles = string.Empty;
-			foreach (var article in _articles)
+			QueueDisplay = string.Empty;
+			foreach (var article in _articleQueue)
 			{
-				DisplayedArticles += article.Name + "\n";
+				QueueDisplay += article.Name + "\n";
 			}
 		}
 	}
