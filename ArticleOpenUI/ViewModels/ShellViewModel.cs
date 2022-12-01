@@ -1,6 +1,7 @@
 ﻿using ArticleOpenUI.Models;
 using Caliburn.Micro;
 using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace ArticleOpenUI.ViewModels
     {
 		private List<ArticleModel> _articles = new();
 		private string _input = "";
-		private string _displayedArticles;
+		private string _displayedArticles = "";
 
 		public string Input
 		{
@@ -38,13 +39,25 @@ namespace ArticleOpenUI.ViewModels
 		public void SearchArticle()
 		{
 			var articleNumbers = ParseInput(Input);
+			
 			foreach ( var artNumber in articleNumbers )
 			{
-				_articles.Add(new ArticleModel(artNumber));
+				if (IsNewArticle(artNumber))
+					_articles.Add(new ArticleModel(artNumber));
 			}
 
 			UpdateArticleNumberDisplay();
 		}
+
+        private bool IsNewArticle(string articleNumber)
+        {
+			foreach (var article in _articles )
+			{
+				if (article.Name.Equals(articleNumber))
+					return false;
+			}
+			return true;
+        }
 
         List<string> ParseInput(string input)
 		{
@@ -61,8 +74,8 @@ namespace ArticleOpenUI.ViewModels
 
 		void UpdateArticleNumberDisplay()
 		{
-			DisplayedArticles = "";
-			foreach ( var article in _articles)
+			DisplayedArticles = string.Empty;
+			foreach (var article in _articles)
 			{
 				DisplayedArticles += article.Name + "\n";
 			}
