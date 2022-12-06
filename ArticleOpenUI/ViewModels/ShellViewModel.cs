@@ -4,6 +4,7 @@ using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace ArticleOpenUI.ViewModels
     {
 		private List<ArticleModel> _articleQueue = new();
 		private string _inputText = "";
-		private string _queueDisplay = "";
+		private string _queueDisplay = "Article";
 
 		public string InputText
 		{
@@ -37,23 +38,46 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => QueueDisplay);
 			} 
 		}
+		public ObservableCollection<ArticleModel> Articles { get; private set; }
+
+		public ShellViewModel()
+		{
+			Articles = new();
+		}
 
 		public void SearchArticle()
 		{
-			var articleNumbers = SplitString(InputText);
+			var inputList = SplitString(InputText);
 			
-			foreach (var number in articleNumbers)
+			foreach (var articleNumber in inputList)
 			{
-				if (!IsInQueue(number))
-					_articleQueue.Add(new ArticleModel(number));
+				if (string.IsNullOrWhiteSpace(articleNumber))
+					continue;
+
+				if (!IsInQueue(articleNumber))
+				{
+					var article = ArticleModel.CreateArticle(articleNumber);
+
+					if (article == null)
+						continue;
+
+					_articleQueue.Add(article);
+					Articles.Add(article);
+				}
+				
 			}
 
 			UpdateQueueDisplay();
 		}
 
-		public void OpenAll()
+		public void OpenArticles()
 		{
-			Open(ArticleOpenMode.All);
+			if (_articleQueue.Count > 0)
+				Open(ArticleOpenMode.All);
+			else
+			{
+				MessageBox.Show("No articles to open");
+			}
 		}
 
 		private void Open(ArticleOpenMode openMode)
@@ -79,7 +103,8 @@ namespace ArticleOpenUI.ViewModels
 						if (article.Type == ArticleType.Plastic || article.Type == ArticleType.PlasticVariant)
 							article.OpenAll();
 						break;
-					case ArticleOpenMode.None: 
+					case ArticleOpenMode.None:
+						MessageBox.Show($"Can't open {article.Name} because it doesn't have a type");
 						break;
 					default:
 						throw new NotImplementedException();

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 
 namespace ArticleOpenUI.Models
@@ -17,49 +19,61 @@ namespace ArticleOpenUI.Models
 
 	class ArticleModel
 	{
-		private string _name = "No Number";
+		private string _name = "";
 		private ArticleType _type = ArticleType.None;
-		private string _path = "No Path";
-		private string _url = "No URL";
+		private string _path = "";
+		private string _url = "";
 
-		public string Name 
-		{ 
+		public string Name
+		{
 			get => _name;
 			set
 			{
 				if (CheckNameValidity(value))
-					_name = value; 
+					_name = value;
 			}
 		}
 		public ArticleType Type { get; set; }
 		public string Path { get; set; }
 		public string URL { get; set; }
 
-		public ArticleModel(string name)
+		private ArticleModel(string name)
 		{
 			Name = name;
+			Type = FindArticleType();
+			Path = FindPath();
+			URL = FindURL();
+		}
+
+		public static ArticleModel? CreateArticle(string name)
+		{
 			try
 			{
-				Type = GetArticleType();
+				return new ArticleModel(name);
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show(ex.Message);
+				return null;
 			}
+        }
 
-			Path = GetPath();
-			URL = GetURL();
-		}
 		private bool CheckNameValidity(string name)
 		{
-			const string REGEX_ARTICLE = @"^\d{6}[VP][1-9]?-?\d?$";
-			return Regex.IsMatch(name, REGEX_ARTICLE, RegexOptions.Compiled);
+			const string REGEX_ARTICLE = @"^\d{6}[VP][1-9]?(-\d)?$";
+			if (Regex.IsMatch(name, REGEX_ARTICLE, RegexOptions.Compiled))
+				return true;
+			else
+			{
+				throw new ArgumentException($"Input \"{name}\" isn't a valid article", "name");
+			}
+			
 
 		}
 
-		private ArticleType GetArticleType()
+		private ArticleType FindArticleType()
 		{
-			const string REGEX_PLASTIC = @"^\d{6}P-?\d?$";
+			const string REGEX_PLASTIC = @"^\d{6}P(-\d)?$";
 			const string REGEX_PLASTIC_VARIANT = @"^\d{6}P-\d$";
 			const string REGEX_TOOL = @"^\d{6}V[1-9]?$";
 			const string REGEX_MODIFICATION = @"^\d{6}V\d$";
@@ -80,10 +94,10 @@ namespace ArticleOpenUI.Models
 					return ArticleType.Tool;
 			}
 			else
-				throw new ArgumentException();
+				throw new ArgumentException("Article type could not be identified", "Type");
 		}
 
-		private string GetPath()
+		private string FindPath()
 		{
 			string rootPath = @"\\Server1\ArtikelFiler\ArticleFiles";
 			string path = $@"{rootPath}\{Name}\{Name}";
@@ -101,33 +115,39 @@ namespace ArticleOpenUI.Models
 				path = $@"{rootPath}\{Name}";
 				fullPath = path;
 			}
+
 			if (Directory.Exists(fullPath))
 				return path;
 			else
-				return "Path doesn't exist";
+				throw new ArgumentException($"Directory for {Name} doesn't exist");
 		}
 
 		public void OpenFolder()
 		{
-			if (this.Path == null)
+			if (string.IsNullOrEmpty(Path))
+				throw new ArgumentNullException("Path", "Path is not assigned");
+
+			if (Directory.Exists(Path))
 			{
-				MessageBox.Show($"Error: {this.Name} has no folder to open.");
-				return;
+				ProcessStartInfo startInfo = new()
+				{
+					Arguments = Path,
+					FileName = "explorer.exe"
+				};
+
+				Process.Start(startInfo);
 			}
-
-			ProcessStartInfo startInfo = new()
-			{
-				Arguments = Path,
-				FileName = "explorer.exe"
-			};
-
-			Process.Start(startInfo);
+			else
+				throw new ArgumentException($"Can't open directory for article {Name} as it doesn't exist");
 			
 		}
 
-		private string GetURL()
+		private string FindURL()
 		{
 			string baseURL = @"http://server1:85";
+
+			if (Type == ArticleType.None)
+				throw new ArgumentException("No URL for Article type of None", "Type");
 
 			if (Type == ArticleType.Plastic || Type == ArticleType.PlasticVariant)
 				return $@"{baseURL}/plastic/{Name}";
@@ -137,13 +157,24 @@ namespace ArticleOpenUI.Models
 
 		public void OpenInfo()
 		{
-			Process.Start("explorer.exe", URL);
+			if (string.IsNullOrEmpty(URL))
+			{
+				throw new ArgumentNullException("URL", "Url is empty");
+			}
+
+			ProcessStartInfo startInfo = new()
+			{
+				FileName = URL,
+				UseShellExecute = true,
+			};
+			Process.Start(startInfo);
 		}
 
 		public void OpenAll()
 		{
 			OpenInfo();
 			OpenFolder();
+			Thread.Sleep(50);
 		}
 
 		public void PrintInfo()
