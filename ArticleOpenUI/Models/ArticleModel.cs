@@ -86,8 +86,7 @@ namespace ArticleOpenUI.Models
 
 			if (html.ParseErrors != null && html.ParseErrors.Count() > 0)
 			{
-				// Handle any parse errors as required
-
+				throw new HtmlWebException($"{html.ParseErrors.Count()} errors occured while trying to parse HTML");
 			}
 			else
 			{
