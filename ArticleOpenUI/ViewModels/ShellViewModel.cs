@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Navigation;
 
 namespace ArticleOpenUI.ViewModels
@@ -45,9 +46,12 @@ namespace ArticleOpenUI.ViewModels
 			Articles = new();
 		}
 
-		public void SearchArticle()
+		public void SearchArticle(string? input)
 		{
-			var inputList = SplitString(InputText);
+			if (string.IsNullOrEmpty(input))
+				input = InputText;
+			
+			var inputList = SplitString(input);
 			
 			foreach (var articleNumber in inputList)
 			{
@@ -60,6 +64,14 @@ namespace ArticleOpenUI.ViewModels
 
 					if (article == null)
 						continue;
+
+					if (article.Type == ArticleType.Tool)
+					{
+						foreach (var child in article.GetChildren())
+						{
+							SearchArticle(child);
+						}
+					}
 
 					_articleQueue.Add(article);
 					Articles.Add(article);

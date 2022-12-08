@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
+using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using HtmlAgilityPack;
 
 namespace ArticleOpenUI.Models
 {
@@ -19,6 +23,7 @@ namespace ArticleOpenUI.Models
 
 	class ArticleModel
 	{
+		private static readonly HttpClient _client = new();
 		private string _name = "";
 		private ArticleType _type = ArticleType.None;
 		private string _path = "";
@@ -69,6 +74,41 @@ namespace ArticleOpenUI.Models
 			}
 			
 
+		}
+
+		public List<string> GetChildren()
+		{
+			List<string> result = new();
+			var html = new HtmlDocument();
+			var web = new HtmlWeb();
+
+			html = web.Load(URL);
+
+			if (html.ParseErrors != null && html.ParseErrors.Count() > 0)
+			{
+				// Handle any parse errors as required
+
+			}
+			else
+			{
+
+				if (html.DocumentNode != null)
+				{
+					HtmlNode bodyNode = html.DocumentNode.SelectSingleNode("//body");
+
+					if (bodyNode != null)
+					{
+						var children = bodyNode.SelectNodes("//td/a").Where(x => Regex.IsMatch(x.Attributes["href"].Value, @"^(?:plastic/)\d+P(?:-\d)?$"));
+						foreach (var child in children)
+						{
+							string childPlastic = child.Attributes["href"].Value.Replace("plastic/", "");
+							result.Add(childPlastic);
+						}
+
+					}
+				}
+			}
+			return result;
 		}
 
 		private ArticleType FindArticleType()
