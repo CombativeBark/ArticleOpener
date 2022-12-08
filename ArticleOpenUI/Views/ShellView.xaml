@@ -27,6 +27,7 @@
 				<ColumnDefinition Width="*"/>
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="6"/>
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
@@ -35,11 +36,13 @@
 			</Grid.RowDefinitions>
 
 				<!--Row 0-->
-            <TextBox x:Name="InputText" Grid.Row="0" Grid.Column="1"
-					 MinWidth="256" MaxWidth="512" Margin="2" />
+            <TextBox x:Name="Input" Grid.Row="0" Grid.Column="1"
+					 Margin="2" />
             <Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
                     MinWidth="64" Margin="2" />
-			<Button x:Name="OpenArticles" Content="Open" Grid.Column="3"
+            <Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="3"
+                    MinWidth="64" Margin="2" />
+			<Button x:Name="OpenArticlesInQueue" Content="Open" Grid.Column="4"
 					MinWidth="96" MaxWidth="128" HorizontalAlignment="Right"
                     Margin="2" />
 
@@ -60,7 +63,7 @@
 			
 			
 				<!--Column 1-->
-            <DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding Articles}" Grid.Column="2">
+            <DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding ArticleData}" Grid.Column="2">
                 <DataGrid.Columns>
                 </DataGrid.Columns>
             </DataGrid>
@@ -68,9 +71,12 @@
 				<!--Column 2-->
 
 				<!--Column 3-->
-			<TextBlock Text="{Binding Path=QueueDisplay, Mode=OneWay}" Grid.Column="3"
-					   FontSize="20" FontWeight="Bold"
-					   VerticalAlignment="Top" HorizontalAlignment="Right"/>
+			<!-- 
+            // Obsolete text displaying articles currently in queue.
+            <TextBlock Text="{Binding Path=QueueDisplay, Mode=OneWay}" Grid.Column="3"
+					FontSize="20" FontWeight="Bold"
+					VerticalAlignment="Top" HorizontalAlignment="Right"/>
+            -->
 		</Grid>
 
 		<!--Footer-->

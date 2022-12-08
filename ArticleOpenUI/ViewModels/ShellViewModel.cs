@@ -1,100 +1,79 @@
 ﻿using ArticleOpenUI.Models;
 using Caliburn.Micro;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Navigation;
 
 namespace ArticleOpenUI.ViewModels
 {
 
     class ShellViewModel : Screen
     {
-		private List<ArticleModel> _articleQueue = new();
-		private string _inputText = "";
-		private string _queueDisplay = "Article";
+		private List<ArticleModel> m_ArticleQueue;
+		private string m_Input = "";
 
-		public string InputText
+		public string Input
 		{
-			get { return _inputText; }
+			get { return m_Input; }
 			set
 			{
-				_inputText = value;
-				NotifyOfPropertyChange(() => InputText);
+				m_Input = value;
+				NotifyOfPropertyChange(() => Input);
 			}
 		}
-        public string QueueDisplay 
-		{
-			get { return _queueDisplay; }
-			set
-			{
-				_queueDisplay = value;
-				NotifyOfPropertyChange(() => QueueDisplay);
-			} 
-		}
-		public ObservableCollection<ArticleModel> Articles { get; private set; }
+		public ObservableCollection<ArticleModel> ArticleData { get; private set; }
 
 		public ShellViewModel()
 		{
-			Articles = new();
+			m_ArticleQueue = new();
+			ArticleData = new();
 		}
-
-		public void SearchArticle(string? input)
+		public void SearchArticle(string input)
 		{
 			if (string.IsNullOrEmpty(input))
-				input = InputText;
+				input = Input;
 			
-			var inputList = SplitString(input);
-			
-			foreach (var articleNumber in inputList)
+			foreach (var articleNumber in SplitString(input))
 			{
-				if (string.IsNullOrWhiteSpace(articleNumber))
+				if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
 					continue;
 
-				if (!IsInQueue(articleNumber))
+				var article = ArticleModel.CreateArticle(articleNumber);
+
+				if (article == null)
+					continue;
+
+				if (article.Type == ArticleType.Tool)
 				{
-					var article = ArticleModel.CreateArticle(articleNumber);
-
-					if (article == null)
-						continue;
-
-					if (article.Type == ArticleType.Tool)
+					foreach (var child in article.GetChildren())
 					{
-						foreach (var child in article.GetChildren())
-						{
-							SearchArticle(child);
-						}
+						SearchArticle(child);
 					}
-
-					_articleQueue.Add(article);
-					Articles.Add(article);
 				}
-				
+
+				AddToQueue(article);
 			}
-
-			UpdateQueueDisplay();
 		}
-
-		public void OpenArticles()
+		public void OpenArticlesInQueue()
 		{
-			if (_articleQueue.Count > 0)
-				Open(ArticleOpenMode.All);
+			if (m_ArticleQueue.Count > 0)
+				OpenArticle(ArticleOpenMode.All);
 			else
 			{
 				MessageBox.Show("No articles to open");
 			}
 		}
-
-		private void Open(ArticleOpenMode openMode)
+		public void ClearQueue()
 		{
-			foreach (var article in _articleQueue)
+			m_ArticleQueue.Clear();
+			ArticleData.Clear();
+		}
+
+		private void OpenArticle(ArticleOpenMode openMode)
+		{
+			foreach (var article in m_ArticleQueue)
 			{
 				switch (openMode)
 				{
@@ -124,18 +103,21 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 		}
-
+		private void AddToQueue(ArticleModel article)
+		{
+			m_ArticleQueue.Add(article);
+			ArticleData.Add(article);
+		}
         private bool IsInQueue(string inputArticle)
         {
-			foreach (var article in _articleQueue)
+			foreach (var article in m_ArticleQueue)
 			{
 				if (article.Name.Equals(inputArticle))
 					return true;
 			}
 			return false;
         }
-
-        List<string> SplitString(string input)
+        private List<string> SplitString(string input)
 		{
 			List<string> result = new();
 
@@ -146,15 +128,6 @@ namespace ArticleOpenUI.ViewModels
 			}
 
 			return result;
-		}
-
-		void UpdateQueueDisplay()
-		{
-			QueueDisplay = string.Empty;
-			foreach (var article in _articleQueue)
-			{
-				QueueDisplay += article.Name + "\n";
-			}
 		}
 	}
 }

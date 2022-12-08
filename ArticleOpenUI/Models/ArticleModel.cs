@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using HtmlAgilityPack;
 
@@ -26,8 +25,8 @@ namespace ArticleOpenUI.Models
 		private static readonly HttpClient _client = new();
 		private string _name = "";
 		private ArticleType _type = ArticleType.None;
-		private string _path = "";
-		private string _url = "";
+		private string _path;
+		private Uri _uri;
 
 		public string Name
 		{
@@ -40,14 +39,14 @@ namespace ArticleOpenUI.Models
 		}
 		public ArticleType Type { get; set; }
 		public string Path { get; set; }
-		public string URL { get; set; }
+		public Uri URI { get; set; }
 
 		private ArticleModel(string name)
 		{
 			Name = name;
 			Type = FindArticleType();
 			Path = FindPath();
-			URL = FindURL();
+			URI = FindURI();
 		}
 
 		public static ArticleModel? CreateArticle(string name)
@@ -82,7 +81,7 @@ namespace ArticleOpenUI.Models
 			var html = new HtmlDocument();
 			var web = new HtmlWeb();
 
-			html = web.Load(URL);
+			html = web.Load(URI);
 
 			if (html.ParseErrors != null && html.ParseErrors.Count() > 0)
 			{
@@ -97,7 +96,9 @@ namespace ArticleOpenUI.Models
 
 					if (bodyNode != null)
 					{
-						var children = bodyNode.SelectNodes("//td/a").Where(x => Regex.IsMatch(x.Attributes["href"].Value, @"^(?:plastic/)\d+P(?:-\d)?$"));
+						var children = bodyNode.SelectNodes("//td/a")
+							.Where(x => Regex.IsMatch(x.Attributes["href"].Value, @"^(?:plastic/)\d+P(?:-\d)?$"));
+
 						foreach (var child in children)
 						{
 							string childPlastic = child.Attributes["href"].Value.Replace("plastic/", "");
@@ -181,29 +182,28 @@ namespace ArticleOpenUI.Models
 			
 		}
 
-		private string FindURL()
+		private Uri FindURI()
 		{
 			string baseURL = @"http://server1:85";
+			string type = "tool";
 
 			if (Type == ArticleType.None)
-				throw new ArgumentException("No URL for Article type of None", "Type");
+				throw new ArgumentException("No URI for Article type of None", "Type");
 
 			if (Type == ArticleType.Plastic || Type == ArticleType.PlasticVariant)
-				return $@"{baseURL}/plastic/{Name}";
-			else
-				return $@"{baseURL}/tool/{Name}";
+				type = "plastic";
+
+			return new Uri($"{baseURL}/{type}/{Name}");
 		}
 
 		public void OpenInfo()
 		{
-			if (string.IsNullOrEmpty(URL))
-			{
-				throw new ArgumentNullException("URL", "Url is empty");
-			}
+			if (URI == null)
+				throw new ArgumentNullException("URI", $"{Name} has no valid Uri");
 
 			ProcessStartInfo startInfo = new()
 			{
-				FileName = URL,
+				FileName = URI.AbsoluteUri,
 				UseShellExecute = true,
 			};
 			Process.Start(startInfo);
@@ -218,7 +218,7 @@ namespace ArticleOpenUI.Models
 
 		public void PrintInfo()
 		{
-			MessageBox.Show($"Article Info\n\tName: {Name}\n\tType: {Type}\n\tPath: {Path}\n\tURL: {URL}");
+			MessageBox.Show($"Article Info\n\tName: {Name}\n\tType: {Type}\n\tPath: {Path}\n\tURL: {URI}");
 		}
 	}
 }
