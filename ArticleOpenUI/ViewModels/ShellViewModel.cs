@@ -12,7 +12,8 @@ namespace ArticleOpenUI.ViewModels
     class ShellViewModel : Screen
     {
 		private List<ArticleModel> m_ArticleQueue;
-		private string m_Input = "";
+		private string m_Input;
+		private string m_InputError;
 
 		public string Input
 		{
@@ -23,12 +24,15 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
+		public string InputError { get; set; }
 		public ObservableCollection<ArticleModel> ArticleData { get; private set; }
 
 		public ShellViewModel()
 		{
 			m_ArticleQueue = new();
 			ArticleData = new();
+			m_Input = "";
+			m_InputError = "";
 		}
 		public void SearchArticle(string input)
 		{
@@ -43,7 +47,10 @@ namespace ArticleOpenUI.ViewModels
 				var article = ArticleModel.CreateArticle(articleNumber);
 
 				if (article == null)
+				{
+
 					continue;
+				}
 
 				if (article.Type == ArticleType.Tool)
 				{
