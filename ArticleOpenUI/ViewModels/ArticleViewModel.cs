@@ -9,9 +9,9 @@ using System.Windows;
 namespace ArticleOpenUI.ViewModels
 {
 
-    class ShellViewModel : Screen
+    class ArticleViewModel : Screen
     {
-		private List<ArticleModel> m_ArticleQueue;
+		private List<IArticle> m_ArticleQueue;
 		private string m_Input;
 		private string m_InputError;
 
@@ -25,44 +25,44 @@ namespace ArticleOpenUI.ViewModels
 			}
 		}
 		public string InputError { get; set; }
-		public ObservableCollection<ArticleModel> ArticleData { get; private set; }
+		public ObservableCollection<IArticle> ArticleData { get; private set; }
 
-		public ShellViewModel()
+		public ArticleViewModel()
 		{
 			m_ArticleQueue = new();
 			ArticleData = new();
 			m_Input = "";
 			m_InputError = "";
 		}
-		public void SearchArticle(string input)
-		{
-			if (string.IsNullOrEmpty(input))
-				input = Input;
-			
-			foreach (var articleNumber in SplitString(input))
-			{
-				if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
-					continue;
+		//public void SearchArticle(string input)
+		//{
+		//	if (string.IsNullOrEmpty(input))
+		//		input = Input;
 
-				var article = ArticleModel.CreateArticle(articleNumber);
+		//	foreach (var articleNumber in SplitString(input))
+		//	{
+		//		if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
+		//			continue;
 
-				if (article == null)
-				{
+		//		var article = IArticleFactory.CreateArticle(articleNumber);
 
-					continue;
-				}
+		//		if (article == null)
+		//		{
 
-				if (article.Type == ArticleType.Tool)
-				{
-					foreach (var child in article.GetChildren())
-					{
-						SearchArticle(child);
-					}
-				}
+		//			continue;
+		//		}
 
-				AddToQueue(article);
-			}
-		}
+		//		if (article.Type == ArticleType.Tool)
+		//		{
+		//			foreach (var child in article.GetChildren())
+		//			{
+		//				SearchArticle(child.Name);
+		//			}
+		//		}
+
+		//		AddToQueue(article);
+		//	}
+		//}
 		public void OpenArticlesInQueue()
 		{
 			if (m_ArticleQueue.Count > 0)
@@ -82,6 +82,7 @@ namespace ArticleOpenUI.ViewModels
 		{
 			foreach (var article in m_ArticleQueue)
 			{
+				/*
 				switch (openMode)
 				{
 					case ArticleOpenMode.All:
@@ -108,9 +109,10 @@ namespace ArticleOpenUI.ViewModels
 						throw new NotImplementedException();
 
 				}
+				*/
 			}
 		}
-		private void AddToQueue(ArticleModel article)
+		private void AddToQueue(IArticle article)
 		{
 			m_ArticleQueue.Add(article);
 			ArticleData.Add(article);
