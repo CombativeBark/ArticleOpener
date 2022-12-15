@@ -22,7 +22,6 @@ namespace ArticleOpenUI.Models
 
 	class ArticleModel
 	{
-		private static readonly HttpClient _client = new();
 		private string _name = "";
 		private ArticleType _type = ArticleType.None;
 		private string _path;
@@ -69,7 +68,7 @@ namespace ArticleOpenUI.Models
 				return true;
 			else
 			{
-				throw new ArgumentException($"Input \"{name}\" isn't a valid article", "name");
+				throw new ArgumentException($"Input \"{name}\" isn't a valid article");
 			}
 			
 
@@ -83,7 +82,7 @@ namespace ArticleOpenUI.Models
 
 			html = web.Load(URI);
 
-			if (html.ParseErrors != null && html.ParseErrors.Count() > 0)
+			if (html.ParseErrors != null && html.ParseErrors.Any())
 			{
 				throw new HtmlWebException($"{html.ParseErrors.Count()} errors occured while trying to parse HTML");
 			}
