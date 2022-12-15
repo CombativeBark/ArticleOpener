@@ -35,18 +35,18 @@
 				<RowDefinition Height="auto"/>
 			</Grid.RowDefinitions>
 
-				<!--Row 0-->
-            <TextBox x:Name="Input" Grid.Row="0" Grid.Column="1"
+			<!--Row 0-->
+			<TextBox x:Name="Input" Grid.Row="0" Grid.Column="1"
 					 Margin="2" />
-            <Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
-                    MinWidth="64" Margin="2" />
-            <Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="3"
-                    MinWidth="64" Margin="2" />
+			<Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
+					MinWidth="64" Margin="2" />
+			<Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="3"
+					MinWidth="64" Margin="2" />
 			<Button x:Name="OpenArticlesInQueue" Content="Open" Grid.Column="4"
 					MinWidth="96" MaxWidth="128" HorizontalAlignment="Right"
-                    Margin="2" />
+					Margin="2" />
 
-				<!--Row 1-->
+			<!--Row 1-->
 			<TextBlock Text="{Binding Path=InputError, Mode=OneWay}" 
 					   Grid.Row="1" Grid.Column="1" Foreground="Red"/>
 		</Grid>
@@ -60,23 +60,24 @@
 				<ColumnDefinition Width="auto"/>
 				<ColumnDefinition Width="6"/>
 			</Grid.ColumnDefinitions>
-			
-			
-				<!--Column 1-->
-            <DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding ArticleData}" Grid.Column="2">
-                <DataGrid.Columns>
-                </DataGrid.Columns>
-            </DataGrid>
 
-				<!--Column 2-->
 
-				<!--Column 3-->
+			<!--Column 1-->
+			<DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding ArticleData}"
+					  Grid.Column="2" IsReadOnly="True">
+				<DataGrid.Columns>
+				</DataGrid.Columns>
+			</DataGrid>
+
+			<!--Column 2-->
+
+			<!--Column 3-->
 			<!-- 
-            // Obsolete text displaying articles currently in queue.
-            <TextBlock Text="{Binding Path=QueueDisplay, Mode=OneWay}" Grid.Column="3"
+			// Obsolete text displaying articles currently in queue.
+			<TextBlock Text="{Binding Path=QueueDisplay, Mode=OneWay}" Grid.Column="3"
 					FontSize="20" FontWeight="Bold"
 					VerticalAlignment="Top" HorizontalAlignment="Right"/>
-            -->
+			-->
 		</Grid>
 
 		<!--Footer-->
