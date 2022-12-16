@@ -7,16 +7,17 @@ using System.Text.RegularExpressions;
 
 namespace ArticleOpenUI.Models
 {
-	internal abstract class ArticleBase : IArticle
+	public abstract class ArticleBase
 	{
-		public string Name { get; set; }
-		public ArticleType Type { get; set; }
-		public string Path { get; set; }
-		public string Url { get; set; }
+		private string _name = "";
+		private ArticleType _type;
 
-		public abstract IArticle CreateArticle(string name);
+		public virtual string Name { get => _name; set => _name = value; }
+		public virtual ArticleType Type { get => _type; private set => _type = value; }
+		public abstract string Path { get; }
+		public abstract string Url { get; }
 
-		public abstract List<IArticle> GetChildren();
+		public abstract List<PlasticArticle> GetChildren();
 
 		public void OpenFolder()
 		{
@@ -46,8 +47,7 @@ namespace ArticleOpenUI.Models
 			Process.Start(startInfo);
 		}
 
-
-		private protected bool IsNameValid(string name)
+		private bool IsNameValid(string name)
 		{
 			const string regex = @"^\d{6}[VP](?:\d|-\d)?$";
 
@@ -65,9 +65,5 @@ namespace ArticleOpenUI.Models
 				throw new ArgumentException($"Error: {name} is not a valid Article Number");
 			}
 		}
-
-		private protected abstract string GetPath();
-
-		private protected abstract string GetUrl();
 	}
 }

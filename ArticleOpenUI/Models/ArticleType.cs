@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace ArticleOpenUI.Models
 {
-    internal enum ArticleType
+    public enum ArticleType
     {
 		None,
 		Tool,
-		Modification,
-		Plastic,
-		PlasticVariant
+		Plastic
     }
 }
