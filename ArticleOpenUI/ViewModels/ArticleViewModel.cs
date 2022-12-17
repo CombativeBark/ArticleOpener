@@ -78,7 +78,7 @@ namespace ArticleOpenUI.ViewModels
 			ArticleData.Clear();
 		}
 
-		private void OpenArticle(ArticleOpenMode openMode)
+		private void OpenArticles(ArticleOpenMode openMode)
 		{
 			foreach (var article in m_ArticleQueue)
 			{
