@@ -11,7 +11,7 @@ namespace ArticleOpenUI.ViewModels
 
     class ArticleViewModel : Screen
     {
-		private List<IArticle> m_ArticleQueue;
+		private List<ArticleBase> m_ArticleQueue;
 		private string m_Input;
 		private string m_InputError;
 
@@ -25,7 +25,7 @@ namespace ArticleOpenUI.ViewModels
 			}
 		}
 		public string InputError { get; set; }
-		public ObservableCollection<IArticle> ArticleData { get; private set; }
+		public ObservableCollection<ArticleBase> ArticleData { get; private set; }
 
 		public ArticleViewModel()
 		{
@@ -112,7 +112,7 @@ namespace ArticleOpenUI.ViewModels
 				*/
 			}
 		}
-		private void AddToQueue(IArticle article)
+		private void AddToQueue(ArticleBase article)
 		{
 			m_ArticleQueue.Add(article);
 			ArticleData.Add(article);
