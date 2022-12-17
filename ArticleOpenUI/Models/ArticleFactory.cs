@@ -21,7 +21,7 @@ namespace ArticleOpenUI.Models
 					return new PlasticArticle(name);
 
 				default:
-					return null;
+					throw new Exception($"Error: {name} is not a supported article type");
 			}
         }
 
