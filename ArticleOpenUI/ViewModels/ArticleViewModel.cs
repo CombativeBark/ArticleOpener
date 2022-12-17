@@ -34,39 +34,39 @@ namespace ArticleOpenUI.ViewModels
 			m_Input = "";
 			m_InputError = "";
 		}
-		//public void SearchArticle(string input)
-		//{
-		//	if (string.IsNullOrEmpty(input))
-		//		input = Input;
+		public void SearchArticle(string input)
+		{
+			if (string.IsNullOrEmpty(input))
+				input = Input;
 
-		//	foreach (var articleNumber in SplitString(input))
-		//	{
-		//		if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
-		//			continue;
+			foreach (var articleNumber in SplitString(input))
+			{
+				if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
+					continue;
 
-		//		var article = IArticleFactory.CreateArticle(articleNumber);
+				var article = ArticleFactory.CreateArticle(articleNumber);
 
-		//		if (article == null)
-		//		{
+				if (article == null)
+				{
 
-		//			continue;
-		//		}
+					continue;
+				}
 
-		//		if (article.Type == ArticleType.Tool)
-		//		{
-		//			foreach (var child in article.GetChildren())
-		//			{
-		//				SearchArticle(child.Name);
-		//			}
-		//		}
+				if (article.Type == ArticleType.Tool)
+				{
+					foreach (var child in article.GetChildren())
+					{
+						SearchArticle(child.Name);
+					}
+				}
 
-		//		AddToQueue(article);
-		//	}
-		//}
+				AddToQueue(article);
+			}
+		}
 		public void OpenArticlesInQueue()
 		{
 			if (m_ArticleQueue.Count > 0)
-				OpenArticle(ArticleOpenMode.All);
+				OpenArticles(ArticleOpenMode.All);
 			else
 			{
 				MessageBox.Show("No articles to open");
