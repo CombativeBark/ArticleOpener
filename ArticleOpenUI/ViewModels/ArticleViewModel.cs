@@ -44,6 +44,8 @@ namespace ArticleOpenUI.ViewModels
 				if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
 					continue;
 
+				try
+				{
 				var article = ArticleFactory.CreateArticle(articleNumber);
 
 				if (article == null)
@@ -61,6 +63,12 @@ namespace ArticleOpenUI.ViewModels
 				}
 
 				AddToQueue(article);
+			}
+				catch (Exception e)
+				{
+					MessageBox.Show(e.Message + "\n\n" + e.StackTrace);
+				}
+
 			}
 		}
 		public void OpenArticlesInQueue()
