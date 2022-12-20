@@ -9,8 +9,8 @@ using System.Windows;
 namespace ArticleOpenUI.ViewModels
 {
 
-    class ArticleViewModel : Screen
-    {
+	class ArticleViewModel : Screen
+	{
 		private List<ArticleBase> m_ArticleQueue;
 		private string m_Input;
 		private string m_InputError;
@@ -42,28 +42,22 @@ namespace ArticleOpenUI.ViewModels
 			foreach (var articleNumber in SplitString(input))
 			{
 				if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
-					continue;
+                    continue;
 
 				try
 				{
-				var article = ArticleFactory.CreateArticle(articleNumber);
+					var article = ArticleFactory.CreateArticle(articleNumber);
 
-				if (article == null)
-				{
-
-					continue;
-				}
-
-				if (article.Type == ArticleType.Tool)
-				{
-					foreach (var child in article.GetChildren())
+					if (article.Type == ArticleType.Tool)
 					{
-						SearchArticle(child.Name);
+						foreach (var child in article.GetChildren())
+						{
+							SearchArticle(child.Name);
+						}
 					}
-				}
 
-				AddToQueue(article);
-			}
+					AddToQueue(article);
+				}
 				catch (Exception e)
 				{
 					MessageBox.Show(e.Message + "\n\n" + e.StackTrace);
@@ -79,6 +73,10 @@ namespace ArticleOpenUI.ViewModels
 			{
 				MessageBox.Show("No articles to open");
 			}
+		}
+		public void RemoveItem(ArticleBase article)
+		{
+			m_ArticleQueue.Remove(article);
 		}
 		public void ClearQueue()
 		{
@@ -125,16 +123,16 @@ namespace ArticleOpenUI.ViewModels
 			m_ArticleQueue.Add(article);
 			ArticleData.Add(article);
 		}
-        private bool IsInQueue(string inputArticle)
-        {
+		private bool IsInQueue(string inputArticle)
+		{
 			foreach (var article in m_ArticleQueue)
 			{
 				if (article.Name.Equals(inputArticle))
 					return true;
 			}
 			return false;
-        }
-        private List<string> SplitString(string input)
+		}
+		private List<string> SplitString(string input)
 		{
 			List<string> result = new();
 

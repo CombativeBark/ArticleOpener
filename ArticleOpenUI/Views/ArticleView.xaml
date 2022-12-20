@@ -65,6 +65,11 @@
 			<!--Column 1-->
 			<DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding ArticleData}"
 					  Grid.Column="2" IsReadOnly="True">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Remove from queue" ItemsSource="{Binding Path=RemoveItem}"></MenuItem>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
 				<DataGrid.Columns>
 				</DataGrid.Columns>
 			</DataGrid>
