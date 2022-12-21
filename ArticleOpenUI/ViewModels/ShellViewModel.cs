@@ -1,5 +1,5 @@
 ﻿using ArticleOpenUI.Commands;
-﻿using ArticleOpenUI.Models;
+using ArticleOpenUI.Models;
 using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,15 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
-		public string InputError { get; set; }
+		public string InputError 
+		{ 
+			get { return m_InputError; }
+			set 
+			{
+				m_InputError = value;
+				NotifyOfPropertyChange(() => InputError);
+			}
+		}
 		public ObservableCollection<ArticleModel> ArticleData { get; private set; }
 		public ICommand SearchCommand { get; }
 
@@ -36,6 +44,8 @@ namespace ArticleOpenUI.ViewModels
 			ArticleData = new();
 			m_Input = "";
 			m_InputError = "";
+
+			SearchCommand = new ArticleSearchCommand();
 		}
 		public void SearchArticle(string input)
 		{
