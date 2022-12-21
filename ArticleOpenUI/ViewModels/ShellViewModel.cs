@@ -1,3 +1,4 @@
+﻿using ArticleOpenUI.Commands;
 ﻿using ArticleOpenUI.Models;
 using Caliburn.Micro;
 using System;
@@ -5,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 
 namespace ArticleOpenUI.ViewModels
 {
@@ -26,6 +28,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public string InputError { get; set; }
 		public ObservableCollection<ArticleModel> ArticleData { get; private set; }
+		public ICommand SearchCommand { get; }
 
 		public ShellViewModel()
 		{
