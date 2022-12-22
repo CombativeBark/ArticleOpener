@@ -50,10 +50,7 @@ namespace ArticleOpenUI.ViewModels
 
 					if (article.Type == ArticleType.Tool)
 					{
-						foreach (var child in article.GetChildren())
-						{
-							SearchArticle(child.Name);
-						}
+						article.GetChildren().ForEach(x => AddToQueue(x));
 					}
 
 					AddToQueue(article);
