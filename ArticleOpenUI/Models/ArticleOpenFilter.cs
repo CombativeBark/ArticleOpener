@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ArticleOpenUI.Models
 {
-    public enum ArticleOpenMode
+    public enum ArticleOpenFilter
     {
         All,
-        Info,
-        Folders
+        Tools,
+        Parts
     }
 }

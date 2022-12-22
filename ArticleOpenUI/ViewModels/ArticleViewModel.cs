@@ -69,8 +69,18 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void OpenArticlesInQueue()
 		{
-			if (m_ArticleQueue.Count > 0)
-				OpenArticles(ArticleOpenMode.All);
+			if (m_ArticleQueue != null &&
+				m_ArticleQueue.Count > 0)
+            {
+				try
+				{
+					OpenArticles(ArticleOpenMode.All, ArticleOpenFilter.All);
+				}
+				catch (Exception e)
+				{
+					MessageBox.Show(e.Message, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
+            }
 			else
 			{
 				MessageBox.Show("No articles to open");
@@ -86,38 +96,49 @@ namespace ArticleOpenUI.ViewModels
 			ArticleData.Clear();
 		}
 
-		private void OpenArticles(ArticleOpenMode openMode)
+		private void OpenArticles(ArticleOpenMode openMode, ArticleOpenFilter openFilter)
 		{
-			foreach (var article in m_ArticleQueue)
+			m_ArticleQueue.ForEach(article =>
 			{
-				/*
+				bool isSkipped = FilterArticle(article, openFilter);
+
+				if (isSkipped)
+					return;
+
 				switch (openMode)
 				{
 					case ArticleOpenMode.All:
-						article.OpenAll();
-						break;
-					case ArticleOpenMode.FoldersOnly: 
 						article.OpenFolder();
-						break;
-					case ArticleOpenMode.InfoOnly:
 						article.OpenInfo();
 						break;
-					case ArticleOpenMode.ToolsOnly: 
-						if (article.Type == ArticleType.Tool || article.Type == ArticleType.Modification)
-							article.OpenAll();
+					case ArticleOpenMode.Folders:
+						article.OpenFolder();
 						break;
-					case ArticleOpenMode.PartsOnly: 
-						if (article.Type == ArticleType.Plastic || article.Type == ArticleType.PlasticVariant)
-							article.OpenAll();
+					case ArticleOpenMode.Info:
+						article.OpenInfo();
 						break;
-					case ArticleOpenMode.None:
-						MessageBox.Show($"Can't open {article.Name} because it doesn't have a type");
-						break;
-					default:
-						throw new NotImplementedException();
-
+					default: throw new ArgumentOutOfRangeException("Please select which option to open.");
 				}
-				*/
+
+			});
+				}
+		private bool FilterArticle(ArticleBase article, ArticleOpenFilter filter)
+		{
+			switch (filter)
+			{
+				case ArticleOpenFilter.All:
+					return false;
+				case ArticleOpenFilter.Tools:
+					if (article.Type == ArticleType.Tool)
+						return false;
+					else
+						return true;
+				case ArticleOpenFilter.Parts:
+					if (article.Type == ArticleType.Plastic)
+						return false;
+					else
+						return true;
+				default: throw new ArgumentOutOfRangeException("Please select which type to open.");
 			}
 		}
 		private void AddToQueue(ArticleBase article)
