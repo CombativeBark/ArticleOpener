@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using System.Threading.Tasks;
 using System.Windows;
+using System.IO;
 
 namespace ArticleOpenUI.Models
 {
@@ -22,9 +23,9 @@ namespace ArticleOpenUI.Models
 			get 
 			{ 
 				if (_isModification)
-					return $@"\\server1\ArticleFiles\ArtikelFiler\{Name.Substring(0, 7)}";
+					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name.Substring(0, 7)}";
 				else 
-					return $@"\\server1\ArticleFiles\ArtikelFiler\{Name}\{Name}";
+					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name}\{Name}";
 			}
 		}
 		public override List<PlasticArticle> Children { get => _children; }
@@ -36,44 +37,14 @@ namespace ArticleOpenUI.Models
                 Name = name;
             }
 
+
             _isModification = IsModification(Name);
 
+			if (!Directory.Exists(Path))
+				throw new DirectoryNotFoundException($"\"{Path}\" does not exist.");
+
 			_children = GetChildren();
-
 		}
-		/*
-	List<string> result = new();
-			var html = new HtmlDocument();
-			var web = new HtmlWeb();
-
-			html = web.Load(URI);
-
-			if (html.ParseErrors != null && html.ParseErrors.Any())
-			{
-				throw new HtmlWebException($"{html.ParseErrors.Count()} errors occured while trying to parse HTML");
-			}
-			else
-			{
-
-				if (html.DocumentNode != null)
-				{
-					HtmlNode bodyNode = html.DocumentNode.SelectSingleNode("//body");
-
-					if (bodyNode != null)
-					{
-						var children = bodyNode.SelectNodes("//td/a")
-							.Where(x => Regex.IsMatch(x.Attributes["href"].Value, @"^(?:plastic/)\d+P(?:-\d)?$"));
-
-						foreach (var child in children)
-						{
-							string childPlastic = child.Attributes["href"].Value.Replace("plastic/", "");
-							result.Add(childPlastic);
-						}
-
-					}
-				}
-			}
-		*/
 		public override List<PlasticArticle> GetChildren()
 		{
 			List<PlasticArticle> result = new();
