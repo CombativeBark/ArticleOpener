@@ -6,7 +6,7 @@ namespace ArticleOpenUI.Models
 {
     public static class ArticleFactory
     {
-        public static ArticleBase? CreateArticle(string name)
+        public static ArticleBase CreateArticle(string name)
         {
 			var type = GetType(name);
 
