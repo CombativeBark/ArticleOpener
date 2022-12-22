@@ -48,6 +48,8 @@ namespace ArticleOpenUI.ViewModels
 				{
 					var article = ArticleFactory.CreateArticle(articleNumber);
 
+					AddToQueue(article);
+
 					if (article.Type == ArticleType.Tool)
 					{
 						article.GetChildren().ForEach(x => AddToQueue(x));
