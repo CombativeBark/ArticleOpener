@@ -13,8 +13,8 @@ namespace ArticleOpenUI.Models
     {
         private bool _isVariant = false;
 
-        public override ArticleType Type => ArticleType.Tool;
-        public override string Url => $@"http://server1:85/tool/{Name}";
+        public override ArticleType Type => ArticleType.Plastic;
+        public override string Url => $@"http://server1:85/plastic/{Name}";
         public override string Path
         { 
             get 
