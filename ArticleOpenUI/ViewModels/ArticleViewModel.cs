@@ -52,7 +52,7 @@ namespace ArticleOpenUI.ViewModels
 
 					if (article.Type == ArticleType.Tool)
 					{
-						article.GetChildren().ForEach(x => AddToQueue(x));
+						article.Children.ForEach(x => AddToQueue(x));
 					}
 				}
 				catch (Exception e)
@@ -81,7 +81,7 @@ namespace ArticleOpenUI.ViewModels
 					MessageBox.Show(e.Message, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
             }
-			else
+            else
 			{
 				MessageBox.Show("No articles to open");
 			}
@@ -119,9 +119,9 @@ namespace ArticleOpenUI.ViewModels
 						break;
 					default: throw new ArgumentOutOfRangeException("Please select which option to open.");
 				}
-
+				
 			});
-				}
+		}
 		private bool FilterArticle(ArticleBase article, ArticleOpenFilter filter)
 		{
 			switch (filter)
@@ -140,7 +140,7 @@ namespace ArticleOpenUI.ViewModels
 						return true;
 				default: throw new ArgumentOutOfRangeException("Please select which type to open.");
 			}
-		}
+		} 
 		private void AddToQueue(ArticleBase article)
 		{
 			m_ArticleQueue.Add(article);

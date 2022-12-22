@@ -16,6 +16,7 @@ namespace ArticleOpenUI.Models
 		public virtual ArticleType Type { get => _type; private set => _type = value; }
 		public abstract string Path { get; }
 		public abstract string Url { get; }
+        public abstract List<PlasticArticle> Children { get; }
 
 		public abstract List<PlasticArticle> GetChildren();
 

@@ -27,6 +27,7 @@ namespace ArticleOpenUI.Models
 					return $@"\\server1\ArticleFiles\ArtikelFiler\{Name}\{Name}";
 			}
 		}
+		public override List<PlasticArticle> Children { get => _children; }
 
 		public ToolArticle(string name)
 		{
