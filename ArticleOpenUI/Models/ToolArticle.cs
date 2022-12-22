@@ -93,12 +93,14 @@ namespace ArticleOpenUI.Models
 						var children = bodyNode.SelectNodes("//td/a")
 							.Where(x => Regex.IsMatch(x.Attributes["href"].Value, pattern));
 
-						children.ToList().ForEach(x =>
+						children.ToList<HtmlNode>().ForEach(x =>
 						{
-                            PlasticArticle child = (PlasticArticle)ArticleFactory.CreateArticle(x.Attributes["href"].Value);
-							if (child != null)
+                            string plasticName = x.Attributes["href"].Value.Replace("plastic/", "");
+                            PlasticArticle plastic = (PlasticArticle)ArticleFactory.CreateArticle(plasticName);
+
+							if (plastic != null)
 							{
-								result.Add(child);
+								result.Add(plastic);
 							}
 						});
 
