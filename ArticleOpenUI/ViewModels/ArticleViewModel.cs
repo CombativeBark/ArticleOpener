@@ -54,12 +54,15 @@ namespace ArticleOpenUI.ViewModels
 					{
 						article.GetChildren().ForEach(x => AddToQueue(x));
 					}
-
-					AddToQueue(article);
 				}
 				catch (Exception e)
 				{
-					MessageBox.Show(e.Message + "\n\n" + e.StackTrace);
+					#if (DEBUG)
+					MessageBox.Show($"{e.Message}\n\n{e.StackTrace}" , "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+					#else
+					MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+					#endif
+
 				}
 
 			}
