@@ -30,8 +30,12 @@ namespace ArticleOpenUI.Models
 
 		public ToolArticle(string name)
 		{
-			Name = name;
-			_isModification = IsModification(Name);
+			if (IsNameValid(name))
+            {
+                Name = name;
+            }
+
+            _isModification = IsModification(Name);
 
 			_children = GetChildren();
 

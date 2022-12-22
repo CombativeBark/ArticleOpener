@@ -47,7 +47,7 @@ namespace ArticleOpenUI.Models
 			Process.Start(startInfo);
 		}
 
-		private bool IsNameValid(string name)
+		public bool IsNameValid(string name)
 		{
 			const string regex = @"^\d{6}[VP](?:\d|-\d)?$";
 
