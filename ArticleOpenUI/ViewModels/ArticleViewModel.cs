@@ -2,6 +2,7 @@
 using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -13,7 +14,59 @@ namespace ArticleOpenUI.ViewModels
 	{
 		private List<ArticleBase> m_ArticleQueue;
 		private string m_Input;
-		private string m_InputError;
+		private bool m_FilterTools;
+		private bool m_FilterPlastics;
+		private bool m_OpenUrls;
+		private bool m_OpenFolders;
+
+		public bool FilterTools 
+		{ 
+			get
+			{
+				return m_FilterTools;
+			}
+			set
+			{
+				m_FilterTools = value;
+				NotifyOfPropertyChange(() => FilterTools);
+			} 
+		}
+		public bool FilterPlastics 
+		{ 
+			get
+			{
+				return m_FilterPlastics;
+			}
+			set
+			{
+				m_FilterPlastics = value;
+				NotifyOfPropertyChange(() => FilterPlastics);
+			} 
+		}
+		public bool OpenUrls 
+		{ 
+			get
+			{
+				return m_OpenUrls;
+			}
+			set
+			{
+				m_OpenUrls = value;
+				NotifyOfPropertyChange(() => OpenUrls);
+			} 
+		}
+		public bool OpenFolders 
+		{ 
+			get
+			{
+				return m_OpenFolders;
+			}
+			set
+			{
+				m_OpenFolders = value;
+				NotifyOfPropertyChange(() => OpenFolders);
+			} 
+		}
 
 		public string Input
 		{
@@ -24,20 +77,38 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
-		public string InputError { get; set; }
 		public ObservableCollection<ArticleBase> ArticleData { get; private set; }
 
 		public ArticleViewModel()
 		{
 			m_ArticleQueue = new();
-			ArticleData = new();
 			m_Input = "";
-			m_InputError = "";
+
+			FilterTools = false;
+			FilterPlastics = false;
+			OpenUrls = false;
+			OpenFolders = false;
+			ArticleData = new();
 		}
 		public void SearchArticle(string input)
 		{
 			if (string.IsNullOrEmpty(input))
 				input = Input;
+
+#if (DEBUG)
+			var activeOptions = "";
+
+			if (FilterTools)
+				activeOptions += "FilterTools ";
+			if (FilterPlastics)
+				activeOptions += "FilterPlastics ";
+			if (OpenUrls)
+				activeOptions += "OpenUrls ";
+			if (OpenFolders)
+				activeOptions += "OpenFolders ";
+
+			MessageBox.Show(activeOptions);
+#endif
 
 			foreach (var articleNumber in SplitString(input))
 			{
@@ -64,7 +135,6 @@ namespace ArticleOpenUI.ViewModels
 					#endif
 
 				}
-
 			}
 		}
 		public void OpenArticlesInQueue()
