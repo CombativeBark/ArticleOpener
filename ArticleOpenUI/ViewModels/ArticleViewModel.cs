@@ -21,7 +21,7 @@ namespace ArticleOpenUI.ViewModels
 		private bool m_OpenFolders;
 
 		public string Input
-		{ 
+		{
 			get { return m_Input; }
 			set
 			{
@@ -156,9 +156,13 @@ namespace ArticleOpenUI.ViewModels
 				MessageBox.Show("No articles to open");
 			}
 		}
-		public void RemoveItem(ArticleBase article)
+		public void RemoveItem(object? context)
 		{
-			m_ArticleQueue.Remove(article);
+			var item = context as DataGridRow;
+
+			if (item == null)
+				return;
+
 		}
 		public void ClearQueue()
 		{
@@ -184,11 +188,10 @@ namespace ArticleOpenUI.ViewModels
                     break;
             }
         }
-		private void OpenArticles(ArticleOpenMode openMode, ArticleOpenFilter openFilter)
+        private void OpenArticles(ArticleOpenMode openMode, ArticleOpenFilter openFilter)
 		{
 			m_ArticleQueue.ForEach(article =>
 			{
-				bool isSkipped = FilterArticle(article, openFilter);
 
 				if ((!OpenTools && article.Type == ArticleType.Tool) ||
 				(!OpenPlastics && article.Type == ArticleType.Plastic))
@@ -196,15 +199,15 @@ namespace ArticleOpenUI.ViewModels
 
 				if (OpenFolders)
 				{
-						article.OpenFolder();
+					article.OpenFolder();
 				}
 
 				if (OpenInfo)
                 {
-						article.OpenInfo();
+                    article.OpenInfo();
 					Thread.Sleep(100);
-				}
-				
+                }
+
 			});
 		}
 		private void AddToQueue(ArticleBase article)
@@ -233,5 +236,5 @@ namespace ArticleOpenUI.ViewModels
 
 			return result;
 		}
-	}
+    }
 }

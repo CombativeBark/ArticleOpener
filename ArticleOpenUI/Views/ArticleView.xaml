@@ -8,7 +8,7 @@
 		xmlns:cal="http://caliburnmicro.com" 
 		mc:Ignorable="d"
 		Title="Article Opener" Height="360" Width="720" FontSize="14" WindowStartupLocation="CenterScreen" Icon="/Resources/ArtOpenMulti.ico">
-	<Grid Name="gridMain">
+    <Grid Name="gridMain">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
@@ -39,7 +39,7 @@
             <TextBox Name="Input" Margin="2"
                      Grid.Row="0" Grid.Column="1"
 					 cal:Message.Attach="[Event KeyDown] = [Action TextBoxEvent($executionContext)]" />
-			<Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
+            <Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
 					MinWidth="64" Margin="2" />
 			<Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="3"
 					MinWidth="64" Margin="2" />
@@ -113,14 +113,16 @@
 
 			<!--Column 1-->
 			<DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding ArticleData}"
-					  Grid.Column="2" IsReadOnly="True">
-                <DataGrid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Remove from queue" ItemsSource="{Binding Path=RemoveItem}"></MenuItem>
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-				<DataGrid.Columns>
-				</DataGrid.Columns>
+					  Grid.Column="2" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Name}" Header="Article"/>
+                    <DataGridTextColumn Binding="{Binding Type}" Header="Type"/>
+					<!-- Placeholder columns for quick access button to
+						 info and folder of a specific article
+                    <DataGridTextColumn MinWidth="22"/>
+                    <DataGridTextColumn MinWidth="22"/> 
+                    -->
+                </DataGrid.Columns>
 			</DataGrid>
 
 			<!--Column 2-->
