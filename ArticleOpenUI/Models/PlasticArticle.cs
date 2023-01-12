@@ -12,7 +12,7 @@ namespace ArticleOpenUI.Models
 {
 	public class PlasticArticle : ArticleBase
 	{
-		private bool _isVariant = false;
+		private bool m_IsVariant = false;
 
 		public override ArticleType Type => ArticleType.Plastic;
 		public override string Url => $@"http://server1:85/plastic/{Name}";
@@ -20,7 +20,7 @@ namespace ArticleOpenUI.Models
 		{ 
 			get 
 			{ 
-				if (_isVariant)
+				if (m_IsVariant)
 					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name.Substring(0, 7)}";
 				else 
 					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name}\{Name}";
@@ -32,7 +32,7 @@ namespace ArticleOpenUI.Models
 		{
 			Name = name;
 
-			_isVariant = IsVariant(Name);
+			m_IsVariant = IsVariant(Name);
 
 			if (!Directory.Exists(Path))
 				throw new DirectoryNotFoundException($"\"{Path}\" does not exist.");

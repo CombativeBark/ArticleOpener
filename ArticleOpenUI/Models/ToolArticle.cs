@@ -13,8 +13,8 @@ namespace ArticleOpenUI.Models
 {
 	public class ToolArticle : ArticleBase
 	{
-		private bool _isModification = false;
-		private List<PlasticArticle> _children;
+		private bool m_IsModification = false;
+		private List<PlasticArticle> m_Children;
 
 		public override ArticleType Type => ArticleType.Tool;
 		public override string Url => $@"http://server1:85/tool/{Name}";
@@ -22,13 +22,13 @@ namespace ArticleOpenUI.Models
 		{ 
 			get 
 			{ 
-				if (_isModification)
+				if (m_IsModification)
 					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name.Substring(0, 7)}";
 				else 
 					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name}\{Name}";
 			}
 		}
-		public override List<PlasticArticle> Children { get => _children; }
+		public override List<PlasticArticle> Children { get => m_Children; }
 
 		public ToolArticle(string name)
 		{
@@ -38,12 +38,12 @@ namespace ArticleOpenUI.Models
             }
 
 
-            _isModification = IsModification(Name);
+            m_IsModification = IsModification(Name);
 
 			if (!Directory.Exists(Path))
 				throw new DirectoryNotFoundException($"\"{Path}\" does not exist.");
 
-			_children = GetChildren();
+			m_Children = GetChildren();
 		}
 		public override List<PlasticArticle> GetChildren()
 		{

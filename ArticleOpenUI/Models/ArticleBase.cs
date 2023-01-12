@@ -9,11 +9,11 @@ namespace ArticleOpenUI.Models
 {
 	public abstract class ArticleBase
 	{
-		private string _name = "";
-		private ArticleType _type;
+		private string m_Name = "";
+		private ArticleType m_Type;
 
-		public virtual string Name { get => _name; set => _name = value; }
-		public virtual ArticleType Type { get => _type; private set => _type = value; }
+		public virtual string Name { get => m_Name; set => m_Name = value; }
+		public virtual ArticleType Type { get => m_Type; private set => m_Type = value; }
 		public abstract string Path { get; }
 		public abstract string Url { get; }
         public abstract List<PlasticArticle> Children { get; }
