@@ -14,45 +14,54 @@ namespace ArticleOpenUI.ViewModels
 	{
 		private List<ArticleBase> m_ArticleQueue;
 		private string m_Input;
-		private bool m_FilterTools;
-		private bool m_FilterPlastics;
-		private bool m_OpenUrls;
+		private bool m_OpenTools;
+		private bool m_OpenPlastics;
+		private bool m_OpenInfo;
 		private bool m_OpenFolders;
 
-		public bool FilterTools 
+		public string Input
+		{ 
+			get { return m_Input; }
+			set
+			{
+				m_Input = value;
+				NotifyOfPropertyChange(() => Input);
+			}
+		}
+		public bool OpenTools 
 		{ 
 			get
 			{
-				return m_FilterTools;
+				return m_OpenTools;
 			}
 			set
 			{
-				m_FilterTools = value;
-				NotifyOfPropertyChange(() => FilterTools);
+				m_OpenTools = value;
+				NotifyOfPropertyChange(() => OpenTools);
 			} 
 		}
-		public bool FilterPlastics 
+		public bool OpenPlastics 
 		{ 
 			get
 			{
-				return m_FilterPlastics;
+				return m_OpenPlastics;
 			}
 			set
 			{
-				m_FilterPlastics = value;
-				NotifyOfPropertyChange(() => FilterPlastics);
+				m_OpenPlastics = value;
+				NotifyOfPropertyChange(() => OpenPlastics);
 			} 
 		}
-		public bool OpenUrls 
+		public bool OpenInfo 
 		{ 
 			get
 			{
-				return m_OpenUrls;
+				return m_OpenInfo;
 			}
 			set
 			{
-				m_OpenUrls = value;
-				NotifyOfPropertyChange(() => OpenUrls);
+				m_OpenInfo = value;
+				NotifyOfPropertyChange(() => OpenInfo);
 			} 
 		}
 		public bool OpenFolders 
@@ -67,16 +76,6 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => OpenFolders);
 			} 
 		}
-
-		public string Input
-		{
-			get { return m_Input; }
-			set
-			{
-				m_Input = value;
-				NotifyOfPropertyChange(() => Input);
-			}
-		}
 		public ObservableCollection<ArticleBase> ArticleData { get; private set; }
 
 		public ArticleViewModel()
@@ -84,10 +83,10 @@ namespace ArticleOpenUI.ViewModels
 			m_ArticleQueue = new();
 			m_Input = "";
 
-			FilterTools = false;
-			FilterPlastics = false;
-			OpenUrls = false;
-			OpenFolders = false;
+			OpenTools = true;
+			OpenPlastics = true;
+			OpenInfo = true;
+			OpenFolders = true;
 			ArticleData = new();
 		}
 		public void SearchArticle(string input)
@@ -98,11 +97,11 @@ namespace ArticleOpenUI.ViewModels
 #if (DEBUG)
 			var activeOptions = "";
 
-			if (FilterTools)
+			if (OpenTools)
 				activeOptions += "FilterTools ";
-			if (FilterPlastics)
+			if (OpenPlastics)
 				activeOptions += "FilterPlastics ";
-			if (OpenUrls)
+			if (OpenInfo)
 				activeOptions += "OpenUrls ";
 			if (OpenFolders)
 				activeOptions += "OpenFolders ";
@@ -172,45 +171,23 @@ namespace ArticleOpenUI.ViewModels
 			{
 				bool isSkipped = FilterArticle(article, openFilter);
 
-				if (isSkipped)
+				if ((!OpenTools && article.Type == ArticleType.Tool) ||
+				(!OpenPlastics && article.Type == ArticleType.Plastic))
 					return;
 
-				switch (openMode)
+				if (OpenFolders)
 				{
-					case ArticleOpenMode.All:
 						article.OpenFolder();
+				}
+
+				if (OpenInfo)
+                {
 						article.OpenInfo();
-						break;
-					case ArticleOpenMode.Folders:
-						article.OpenFolder();
-						break;
-					case ArticleOpenMode.Info:
-						article.OpenInfo();
-						break;
-					default: throw new ArgumentOutOfRangeException("Please select which option to open.");
+					Thread.Sleep(100);
 				}
 				
 			});
 		}
-		private bool FilterArticle(ArticleBase article, ArticleOpenFilter filter)
-		{
-			switch (filter)
-			{
-				case ArticleOpenFilter.All:
-					return false;
-				case ArticleOpenFilter.Tools:
-					if (article.Type == ArticleType.Tool)
-						return false;
-					else
-						return true;
-				case ArticleOpenFilter.Parts:
-					if (article.Type == ArticleType.Plastic)
-						return false;
-					else
-						return true;
-				default: throw new ArgumentOutOfRangeException("Please select which type to open.");
-			}
-		} 
 		private void AddToQueue(ArticleBase article)
 		{
 			m_ArticleQueue.Add(article);
