@@ -6,6 +6,8 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ArticleOpenUI.ViewModels
 {
@@ -164,7 +166,25 @@ namespace ArticleOpenUI.ViewModels
 			m_ArticleQueue.Clear();
 			ArticleData.Clear();
 		}
+		public void TextBoxEvent(ActionExecutionContext context)
+		{
+			var keyArgs = context.EventArgs as KeyEventArgs;
 
+			if (keyArgs == null && string.IsNullOrWhiteSpace(Input))
+				return;
+
+            switch (keyArgs.Key)
+            {
+                case Key.Enter:
+                    SearchArticle(Input);
+                    break;
+                case Key.Escape:
+                    ClearQueue();
+                    break;
+                default:
+                    break;
+            }
+        }
 		private void OpenArticles(ArticleOpenMode openMode, ArticleOpenFilter openFilter)
 		{
 			m_ArticleQueue.ForEach(article =>
