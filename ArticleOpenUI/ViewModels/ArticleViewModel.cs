@@ -16,11 +16,12 @@ namespace ArticleOpenUI.ViewModels
 	{
 		private List<ArticleBase> m_ArticleQueue;
 		private string m_Input;
-		private bool m_OpenTools;
-		private bool m_OpenPlastics;
-		private bool m_OpenInfo;
-		private bool m_OpenFolders;
+		private bool m_OpenToolsFilter;
+		private bool m_OpenPlasticsFilter;
+		private bool m_OpenInfoFilter;
+		private bool m_OpenFoldersFilter;
 
+		public ObservableCollection<ArticleBase> ArticleList { get; private set; }
 		public string Input
 		{
 			get { return m_Input; }
@@ -30,52 +31,52 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
-		public bool OpenTools 
+		public bool OpenToolsFilter 
 		{ 
 			get
 			{
-				return m_OpenTools;
+				return m_OpenToolsFilter;
 			}
 			set
 			{
-				m_OpenTools = value;
-				NotifyOfPropertyChange(() => OpenTools);
+				m_OpenToolsFilter = value;
+				NotifyOfPropertyChange(() => OpenToolsFilter);
 			} 
 		}
-		public bool OpenPlastics 
+		public bool OpenPlasticsFilter 
 		{ 
 			get
 			{
-				return m_OpenPlastics;
+				return m_OpenPlasticsFilter;
 			}
 			set
 			{
-				m_OpenPlastics = value;
-				NotifyOfPropertyChange(() => OpenPlastics);
+				m_OpenPlasticsFilter = value;
+				NotifyOfPropertyChange(() => OpenPlasticsFilter);
 			} 
 		}
-		public bool OpenInfo 
+		public bool OpenInfoFilter 
 		{ 
 			get
 			{
-				return m_OpenInfo;
+				return m_OpenInfoFilter;
 			}
 			set
 			{
-				m_OpenInfo = value;
-				NotifyOfPropertyChange(() => OpenInfo);
+				m_OpenInfoFilter = value;
+				NotifyOfPropertyChange(() => OpenInfoFilter);
 			} 
 		}
-		public bool OpenFolders 
+		public bool OpenFoldersFilter 
 		{ 
 			get
 			{
-				return m_OpenFolders;
+				return m_OpenFoldersFilter;
 			}
 			set
 			{
-				m_OpenFolders = value;
-				NotifyOfPropertyChange(() => OpenFolders);
+				m_OpenFoldersFilter = value;
+				NotifyOfPropertyChange(() => OpenFoldersFilter);
 			} 
 		}
 		public ObservableCollection<ArticleBase> ArticleData { get; private set; }
@@ -85,11 +86,11 @@ namespace ArticleOpenUI.ViewModels
 			m_ArticleQueue = new();
 			m_Input = "";
 
-			OpenTools = true;
-			OpenPlastics = true;
-			OpenInfo = true;
-			OpenFolders = true;
-			ArticleData = new();
+			OpenToolsFilter = true;
+			OpenPlasticsFilter = true;
+			OpenInfoFilter = true;
+			OpenFoldersFilter = true;
+			ArticleList = new();
 		}
 		public void SearchArticle(string input)
 		{
@@ -194,16 +195,16 @@ namespace ArticleOpenUI.ViewModels
 			m_ArticleQueue.ForEach(article =>
 			{
 
-				if ((!OpenTools && article.Type == ArticleType.Tool) ||
-				(!OpenPlastics && article.Type == ArticleType.Plastic))
+				if ((!OpenToolsFilter && article.Type == ArticleType.Tool) ||
+				(!OpenPlasticsFilter && article.Type == ArticleType.Plastic))
 					return;
 
-				if (OpenFolders)
+				if (OpenFoldersFilter)
 				{
 					article.OpenFolder();
 				}
 
-				if (OpenInfo)
+				if (OpenInfoFilter)
                 {
                     article.OpenInfo();
 					Thread.Sleep(100);
