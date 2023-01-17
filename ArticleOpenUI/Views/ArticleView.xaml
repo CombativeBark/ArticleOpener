@@ -7,7 +7,7 @@
 		xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
 		xmlns:cal="http://caliburnmicro.com" 
 		mc:Ignorable="d"
-		Title="Article Opener" Height="360" Width="720" FontSize="14" WindowStartupLocation="CenterScreen">
+		Title="Article Opener V1.0.0" Height="360" Width="720" FontSize="14" WindowStartupLocation="CenterScreen">
     <Grid Name="gridMain">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
