@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <ApplicationIcon>Resources\ArtOpen.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\ArtOpenMulti.ico</ApplicationIcon>
   </PropertyGroup>
 
 
@@ -18,7 +18,7 @@
 
 
   <ItemGroup>
-    <Content Include="Resources\ArtOpen.ico" />
+    <Content Include="Resources\ArtOpenMulti.ico" />
   </ItemGroup>
 
   <ItemGroup>
