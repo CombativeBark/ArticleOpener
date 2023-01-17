@@ -114,7 +114,7 @@ namespace ArticleOpenUI.ViewModels
 
 			foreach (var articleNumber in SplitString(input))
 			{
-				if (string.IsNullOrWhiteSpace(articleNumber) || IsInQueue(articleNumber))
+				if (string.IsNullOrWhiteSpace(articleNumber))
                     continue;
 
 				try
@@ -214,8 +214,11 @@ namespace ArticleOpenUI.ViewModels
 		}
 		private void AddToQueue(ArticleBase article)
 		{
+			if (!IsInQueue(article.Name))
+			{
 			m_ArticleQueue.Add(article);
-			ArticleData.Add(article);
+				ArticleList.Add(article);
+			}
 		}
 		private bool IsInQueue(string inputArticle)
 		{
