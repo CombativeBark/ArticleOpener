@@ -79,7 +79,6 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => OpenFoldersFilter);
 			} 
 		}
-		public ObservableCollection<ArticleBase> ArticleData { get; private set; }
 
 		public ArticleViewModel()
 		{
@@ -92,25 +91,29 @@ namespace ArticleOpenUI.ViewModels
 			OpenFoldersFilter = true;
 			ArticleList = new();
 		}
+		public void TextBoxEvent(ActionExecutionContext context)
+		{
+			var keyArgs = context.EventArgs as KeyEventArgs;
+
+			if (keyArgs == null || string.IsNullOrWhiteSpace(Input))
+				return;
+
+            switch (keyArgs.Key)
+            {
+                case Key.Enter:
+                    SearchArticle(Input);
+                    break;
+                case Key.Escape:
+                    ClearQueue();
+                    break;
+                default:
+                    break;
+            }
+        }
 		public void SearchArticle(string input)
 		{
 			if (string.IsNullOrEmpty(input))
 				input = Input;
-
-#if (DEBUG)
-			var activeOptions = "";
-
-			if (OpenTools)
-				activeOptions += "FilterTools ";
-			if (OpenPlastics)
-				activeOptions += "FilterPlastics ";
-			if (OpenInfo)
-				activeOptions += "OpenUrls ";
-			if (OpenFolders)
-				activeOptions += "OpenFolders ";
-
-			MessageBox.Show(activeOptions);
-#endif
 
 			foreach (var articleNumber in SplitString(input))
 			{
@@ -158,38 +161,42 @@ namespace ArticleOpenUI.ViewModels
 				MessageBox.Show("No articles to open");
 			}
 		}
-		public void RemoveItem(object? context)
+		public void ClearQueue()
 		{
-			var item = context as DataGridRow;
+			m_ArticleQueue.Clear();
+			ArticleList.Clear();
+		}
+		public void OpenFolder(object? context)
+		{
+			var article = context as ArticleBase;
+			if (article == null) return;
+
+			article.OpenFolder();
+		}
+		public void OpenInfo(object? context)
+		{
+			var article = context as ArticleBase;
+			if (article == null) return;
+
+			article.OpenInfo();
+		}
+		public void RemoveFromQueue(object? context)
+		{
+			var item = context as ArticleBase;
 
 			if (item == null)
 				return;
 
+			foreach (var article in m_ArticleQueue)
+			{
+				if (article.Name == item.Name)
+				{
+					m_ArticleQueue.Remove(article);
+					ArticleList.Remove(article);
+					return;
+				}
+			}
 		}
-		public void ClearQueue()
-		{
-			m_ArticleQueue.Clear();
-			ArticleData.Clear();
-		}
-		public void TextBoxEvent(ActionExecutionContext context)
-		{
-			var keyArgs = context.EventArgs as KeyEventArgs;
-
-			if (keyArgs == null && string.IsNullOrWhiteSpace(Input))
-				return;
-
-            switch (keyArgs.Key)
-            {
-                case Key.Enter:
-                    SearchArticle(Input);
-                    break;
-                case Key.Escape:
-                    ClearQueue();
-                    break;
-                default:
-                    break;
-            }
-        }
         private void OpenArticles(ArticleOpenMode openMode, ArticleOpenFilter openFilter)
 		{
 			m_ArticleQueue.ForEach(article =>
@@ -216,7 +223,7 @@ namespace ArticleOpenUI.ViewModels
 		{
 			if (!IsInQueue(article.Name))
 			{
-			m_ArticleQueue.Add(article);
+				m_ArticleQueue.Add(article);
 				ArticleList.Add(article);
 			}
 		}
