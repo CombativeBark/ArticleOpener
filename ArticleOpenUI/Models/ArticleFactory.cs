@@ -6,6 +6,19 @@ namespace ArticleOpenUI.Models
 {
     public static class ArticleFactory
     {
+		/* input string
+		 * split/parse string
+		 * error on bad input
+		 * 
+		 * try to create articles
+		 * create tools
+		 * populate tools with info
+		 * if tool has children
+		 * create plastics
+		 * populate plastics with info
+		 * return articles
+		 */
+		
         public static ArticleBase CreateArticle(string name)
         {
 			var type = GetType(name);
@@ -13,13 +26,16 @@ namespace ArticleOpenUI.Models
 			if (type == null)
 				throw new ArgumentException($"Error: Can't find a type for article {name}");
 
+			var info = GetInfo(name);
+
 			switch (type)
 			{
 				case ArticleType.Tool:
-					return new ToolArticle(name);
+                    var toolArticle = new ToolArticle(info);
+                    return toolArticle;
 				case ArticleType.Plastic:
-					return new PlasticArticle(name);
-
+					var plasticArticle = new PlasticArticle(info);
+					return plasticArticle;
 				default:
 					throw new Exception($"Error: {name} is not a supported article type");
 			}
@@ -43,5 +59,12 @@ namespace ArticleOpenUI.Models
 
 			return null;
         }
+
+		private static ArticleInfo GetInfo(string name)
+		{
+			var output = new ArticleInfo(name);
+
+			return output;
+		}
     }
 }

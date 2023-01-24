@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Navigation;
 
 namespace ArticleOpenUI.ViewModels
 {
@@ -101,7 +99,7 @@ namespace ArticleOpenUI.ViewModels
             switch (keyArgs.Key)
             {
                 case Key.Enter:
-                    SearchArticle(Input);
+                    SearchArticle();
                     break;
                 case Key.Escape:
                     ClearQueue();
@@ -110,33 +108,29 @@ namespace ArticleOpenUI.ViewModels
                     break;
             }
         }
-		public void SearchArticle(string input)
+		public void SearchArticle()
 		{
-			if (string.IsNullOrEmpty(input))
-				input = Input;
+			if (Input == null || string.IsNullOrEmpty(Input))
+				return;
 
-			foreach (var articleNumber in SplitString(input))
+			foreach (var articleNumber in SplitString(Input))
 			{
-				if (string.IsNullOrWhiteSpace(articleNumber))
-                    continue;
-
 				try
 				{
 					var article = ArticleFactory.CreateArticle(articleNumber);
 
 					AddToQueue(article);
-
-					if (article.Type == ArticleType.Tool)
+					if (article.Children != null && article.Type == ArticleType.Tool)
 					{
-						article.Children.ForEach(x => AddToQueue(x));
+						article.Children.ForEach(x => ArticleFactory.CreateArticle(x));
 					}
 				}
 				catch (Exception e)
 				{
 					#if (DEBUG)
-					MessageBox.Show($"{e.Message}\n\n{e.StackTrace}" , "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show($"Error: {e.Message}\n\n{e.StackTrace}" , "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 					#else
-					MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show("Error: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 					#endif
 
 				}
@@ -240,12 +234,14 @@ namespace ArticleOpenUI.ViewModels
 		{
 			List<string> result = new();
 
-			var splitString = input.Split(new char[] { ' ', '.', ':', ',', ';' });
-			foreach (var substring in splitString)
+			var splitString = input.Split(new char[] { ' ', '.', ':', ',', ';', '-', '_' });
+			for (int i = 0; i < splitString.Length; i++)
 			{
-				result.Add(substring);
+				if (!string.IsNullOrWhiteSpace(splitString[i]))
+				{
+					result.Add(splitString[i]);
+				}
 			}
-
 			return result;
 		}
     }

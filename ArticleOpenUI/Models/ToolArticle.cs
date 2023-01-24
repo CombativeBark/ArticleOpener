@@ -14,7 +14,7 @@ namespace ArticleOpenUI.Models
 	public class ToolArticle : ArticleBase
 	{
 		private bool m_IsModification = false;
-		private List<PlasticArticle> m_Children;
+		private List<string> m_Children;
 
 		public override ArticleType Type => ArticleType.Tool;
 		public override string Url => $@"http://server1:85/tool/{Name}";
@@ -28,24 +28,33 @@ namespace ArticleOpenUI.Models
 					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name}\{Name}";
 			}
 		}
-		public override List<PlasticArticle> Children { get => m_Children; }
+		public override List<string> Children { get => m_Children; }
 
-		public ToolArticle(string name)
+		public ToolArticle(ArticleInfo info)
 		{
-			if (IsNameValid(name))
-            {
-                Name = name;
-            }
+			if (info == null) 
+				throw new ArgumentNullException(nameof(info));
 
-
+			if (IsNameValid(info.Name))
+                Name = info.Name;
             m_IsModification = IsModification(Name);
+
+			m_Children = new List<string>();
+			if (info.Plastics != null)
+			{
+				foreach (var child in info.Plastics)
+				{
+					m_Children.Add(child);
+				}
+
+			}
+
 
 			if (!Directory.Exists(Path))
 				throw new DirectoryNotFoundException($"\"{Path}\" does not exist.");
 
-			m_Children = GetChildren();
 		}
-		public override List<PlasticArticle> GetChildren()
+		public List<PlasticArticle> GetChildren()
 		{
 			List<PlasticArticle> result = new();
 

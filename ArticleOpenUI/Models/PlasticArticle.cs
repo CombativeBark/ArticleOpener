@@ -26,21 +26,17 @@ namespace ArticleOpenUI.Models
 					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name}\{Name}";
 			}
 		}
-        public override List<PlasticArticle> Children => new List<PlasticArticle>();
 
-        public PlasticArticle(string name)
+        public override List<string>? Children => null;
+
+        public PlasticArticle(ArticleInfo info)
 		{
-			Name = name;
+			Name = info.Name;
 
 			m_IsVariant = IsVariant(Name);
 
 			if (!Directory.Exists(Path))
 				throw new DirectoryNotFoundException($"\"{Path}\" does not exist.");
-		}
-
-		public override List<PlasticArticle> GetChildren()
-		{
-			return new List<PlasticArticle>{ };
 		}
 
 		private bool IsVariant(string name)
