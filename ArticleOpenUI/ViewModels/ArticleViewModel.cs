@@ -3,6 +3,7 @@ using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -120,9 +121,13 @@ namespace ArticleOpenUI.ViewModels
 					var article = ArticleFactory.CreateArticle(articleNumber);
 
 					AddToQueue(article);
-					if (article.Children != null && article.Type == ArticleType.Tool)
+					if (article.Children != null && article.Children.Any())
 					{
-						article.Children.ForEach(x => ArticleFactory.CreateArticle(x));
+						article.Children.ForEach(x => 
+						{
+							var childArticle = ArticleFactory.CreateArticle(x);
+							AddToQueue(childArticle);
+						});
 					}
 				}
 				catch (Exception e)

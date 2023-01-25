@@ -21,14 +21,13 @@ namespace ArticleOpenUI.Models
 		
         public static ArticleBase CreateArticle(string name)
         {
-			var type = GetType(name);
-
-			if (type == null)
-				throw new ArgumentException($"Error: Can't find a type for article {name}");
-
 			var info = GetInfo(name);
 
-			switch (type)
+			if (info == null)
+				throw new ArgumentException($"Error: Can't process article number {name}");
+
+
+			switch (info.Type)
 			{
 				case ArticleType.Tool:
                     var toolArticle = new ToolArticle(info);

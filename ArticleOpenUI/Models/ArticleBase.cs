@@ -9,20 +9,16 @@ namespace ArticleOpenUI.Models
 {
     public abstract class ArticleBase
     {
-        private string m_Name = "";
-        private ArticleType m_Type;
-
-        public virtual string Name
-        {
-            get => m_Name;
-            set
-            {
-                m_Name = IsNameValid(value) ? value : "";
-            }
-        }
-        public virtual ArticleType Type { get => m_Type; private set => m_Type = value; }
+        public abstract string Name { get; }
         public abstract string Path { get; }
-        public abstract string Url { get; }
+        public abstract ArticleType Type { get; }
+        public virtual string Url { get; } = "";
+        public virtual string Cad { get; } = "";
+        public virtual string Customer { get; } = "";
+        public virtual string Description { get; } = "";
+        public virtual string Material { get; } = "";
+		public virtual string Shrinkage { get; } = "";
+		public virtual string Machine { get; } = "";
         public abstract List<string>? Children { get; }
 
         public void OpenFolder()

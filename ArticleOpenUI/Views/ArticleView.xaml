@@ -8,7 +8,7 @@
 		xmlns:cal="http://caliburnmicro.com" 
 		mc:Ignorable="d"
 		Title="Article Opener V1.0.0" Height="360" Width="720" FontSize="14" WindowStartupLocation="CenterScreen">
-    <Grid Name="gridMain">
+	<Grid Name="gridMain">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
@@ -36,10 +36,10 @@
 			</Grid.RowDefinitions>
 
 			<!--Row 0-->
-            <TextBox Name="Input" Margin="2"
-                     Grid.Row="0" Grid.Column="1"
+			<TextBox Name="Input" Margin="2"
+					 Grid.Row="0" Grid.Column="1"
 					 cal:Message.Attach="[Event KeyDown] = [Action TextBoxEvent($executionContext)]" />
-            <Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
+			<Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
 					MinWidth="64" Margin="2" />
 			<Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="3"
 					MinWidth="64" Margin="2" />
@@ -48,53 +48,53 @@
 					Margin="2" />
 
 			<!--Row 1-->
-            <Grid Grid.Column="2" Grid.ColumnSpan="3"
-                  Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="8"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="2"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="2"/>
-                </Grid.RowDefinitions>
+			<Grid Grid.Column="2" Grid.ColumnSpan="3"
+				  Grid.Row="1">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*"/>
+					<ColumnDefinition Width="8"/>
+					<ColumnDefinition Width="1*"/>
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="2"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="2"/>
+				</Grid.RowDefinitions>
 
-                <!-- FILTER BOXES  -->
-                
+				<!-- FILTER BOXES  -->
+				
 				<!--Row 1-->
-                <TextBlock Text="Type:" 
+				<TextBlock Text="Type:" 
 						   Grid.Row="1"/>
 
-                <!--Row 2-->
+				<!--Row 2-->
 				<CheckBox IsChecked="{Binding Path=OpenToolsFilter, Mode=TwoWay}" Content="Tools"
-                          Grid.Row="2"/>
-                
+						  Grid.Row="2"/>
+				
 				<!--Row 3-->
 				<CheckBox IsChecked="{Binding Path=OpenPlasticsFilter, Mode=TwoWay}" Content="Parts"
-                          Grid.Row="3"/>
-                
-                <!--Column 2-->
+						  Grid.Row="3"/>
+				
+				<!--Column 2-->
 
 				<!--Row 1-->
-                <TextBlock Text="Open:" 
-                           Grid.Column="2"
+				<TextBlock Text="Open:" 
+						   Grid.Column="2"
 						   Grid.Row="1"/>
 
-                <!--Row 2-->
+				<!--Row 2-->
 				<CheckBox IsChecked="{Binding Path=OpenFoldersFilter, Mode=TwoWay}" Content="Folders"
-                          Grid.Column="2"
-                          Grid.Row="2"/>
-                
+						  Grid.Column="2"
+						  Grid.Row="2"/>
+				
 				<!--Row 3-->
 				<CheckBox IsChecked="{Binding Path=OpenInfoFilter, Mode=TwoWay}" Content="Info"
-                          Grid.Column="2"
-                          Grid.Row="3"/>
-                
-            </Grid>
+						  Grid.Column="2"
+						  Grid.Row="3"/>
+				
+			</Grid>
 		</Grid>
 
 		<!--Body-->
@@ -112,11 +112,25 @@
 			
 			<DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding ArticleList}"
 					  Grid.Column="2" AutoGenerateColumns="False" IsReadOnly="True">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Name}" Header="Article"/>
-                    <DataGridTextColumn Binding="{Binding Type}" Header="Type"/>
-                    <DataGridTemplateColumn MinWidth="48">
-                        <DataGridTemplateColumn.CellTemplate>
+				<DataGrid.Columns>
+					<DataGridTextColumn Binding="{Binding Name}" Header="Article"
+										MinWidth="64" MaxWidth="64"/>
+					<DataGridTextColumn Binding="{Binding Type}" Header="Type"
+                                        MinWidth="48" MaxWidth="64"/>
+					<DataGridTextColumn Binding="{Binding Cad}" Header="CAD"
+                                        MinWidth="32" MaxWidth="96"/>
+					<DataGridTextColumn Binding="{Binding Customer}" Header="Customer"
+                                        MinWidth="32" MaxWidth="256"/>
+					<DataGridTextColumn Binding="{Binding Description}" Header="Description"
+                                        MinWidth="32" MaxWidth="320"/>
+					<DataGridTextColumn Binding="{Binding Material}" Header="Material"
+                                        MinWidth="32" MaxWidth="320"/>
+					<DataGridTextColumn Binding="{Binding Shrinkage}" Header="Shrinkage"
+                                        MinWidth="32" MaxWidth="96"/>
+					<DataGridTextColumn Binding="{Binding Machine}" Header="Machine"
+                                        MinWidth="32" MaxWidth="128"/>
+					<DataGridTemplateColumn MinWidth="48">
+						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
 								<Button Content="Folder" cal:Message.Attach="[Event Click]=[OpenFolder($dataContext)]"></Button>
 							</DataTemplate>
@@ -136,7 +150,9 @@
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
-                </DataGrid.Columns>
+
+				</DataGrid.Columns>
+
 			</DataGrid>
 
 			<!--Column 2-->
