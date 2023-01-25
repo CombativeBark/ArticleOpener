@@ -116,16 +116,24 @@
 			<DataGrid x:Name="ArticlesDataGrid" ItemsSource="{Binding ArticleList}"
 					  Grid.Column="2" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Name}" Header="Article"/>
-                    <DataGridTextColumn Binding="{Binding Type}" Header="Type"/>
-                    <DataGridTemplateColumn MinWidth="48">
+					<!-- Left Aligned -->
+                    <DataGridTextColumn Binding="{Binding Name}" Header="Article"
+                                        MinWidth="64"/>
+                    <DataGridTextColumn Binding="{Binding Type}" Header="Type"
+                                        MinWidth="64"/>
+                    
+                    <!-- Center Spacer -->
+                    <DataGridTextColumn Width="2*" />
+                    
+                    <!-- Rigth Aligned -->
+                    <DataGridTemplateColumn MinWidth="64">
                         <DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
 								<Button Content="Folder" cal:Message.Attach="[Event Click]=[OpenFolder($dataContext)]"></Button>
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>
 					</DataGridTemplateColumn>
-					<DataGridTemplateColumn MinWidth="48">
+					<DataGridTemplateColumn MinWidth="64">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
 								<Button Content="Info" cal:Message.Attach="[Event Click]=[OpenInfo($dataContext)]"></Button>
@@ -145,12 +153,6 @@
 			<!--Column 2-->
 
 			<!--Column 3-->
-			<!-- 
-			// Obsolete text displaying articles currently in queue.
-			<TextBlock Text="{Binding Path=QueueDisplay, Mode=OneWay}" Grid.Column="3"
-					FontSize="20" FontWeight="Bold"
-					VerticalAlignment="Top" HorizontalAlignment="Right"/>
-			-->
 		</Grid>
 
 		<!--Footer-->
