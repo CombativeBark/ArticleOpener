@@ -202,7 +202,7 @@ namespace ArticleOpenUI.Models
 			var output = new List<string>();
 
 			var tdNodes = node.SelectNodes(".//td");
-			for (int i = 0; i < tdNodes.Count(); i++)
+			for (int i = 0; i < tdNodes?.Count(); i++)
 			{
 				if (i % 3 == 0 && IsPlasticsNode(tdNodes[i]))
 					output.Add(tdNodes[i].InnerText);
