@@ -9,22 +9,31 @@ namespace ArticleOpenUI.Models
 {
 	public class ArticleInfo
 	{
-		public string Name { get; private set; } = "Unknown";
-		public string URL { get; private set; } = "Unknown";
+		private string m_FullPath { get; set; } = "";
+		private bool m_IsModification { get; set; } = false;
+		private bool m_IsVariant { get; set; } = false;
+
+		public string Name { get; private set; } = "";
+		public string Path { get; private set; } = "";
+		public string URL { get; private set; } = "";
+		public List<string>? Plastics { get; private set; } = null;
 		public string CAD { get; private set; } = "Unknown";
 		public string Customer { get; private set; } = "Unknown";
 		public string Description { get; private set; } = "Unknown";
 		public string Material { get; private set; } = "Unknown";
 		public string Shrinkage { get; private set; } = "Unknown";
 		public string Machine { get; private set; } = "Unknown";
-		public List<string>? Plastics { get; private set; } = null;
 		public ArticleType Type { get; private init; }
 
 		public ArticleInfo(string name)
 		{
-
+			if (IsNameValid(name))
 			Name = name;
+			else
+				throw new ArgumentException($"{name} is not a valid article.");
+
 			Type = GetArticleType();
+			Path = GetPath();
 			URL = GetURL();
 
 			if (URL != null)
