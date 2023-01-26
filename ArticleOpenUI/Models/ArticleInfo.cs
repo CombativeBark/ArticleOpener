@@ -149,7 +149,7 @@ namespace ArticleOpenUI.Models
 						if (Type == ArticleType.Tool)
 						{
 							var data = nextNode.SelectNodes(".//td")[1].InnerText;
-							var match = Regex.Match(data, @".*\d{6} (\w+) // (Krymp \d[,.]\d+%).*");
+							var match = Regex.Match(data, @".*\d{6} (\w+) // ([Kk]rymp \d[,.]\d+%).*", RegexOptions.Compiled);
 
 							if (match.Success)
 							{ 
