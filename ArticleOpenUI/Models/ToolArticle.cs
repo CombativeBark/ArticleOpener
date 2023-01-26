@@ -8,16 +8,24 @@ using HtmlAgilityPack;
 using System.Threading.Tasks;
 using System.Windows;
 using System.IO;
+using System.Reflection.PortableExecutable;
 
 namespace ArticleOpenUI.Models
 {
 	public class ToolArticle : ArticleBase
 	{
+		private string m_Name = "";
+		private string m_Url;
+		private string m_Cad;
+		private string m_Customer;
+		private string m_Shrinkage;
+		private string m_Machine;
+		private ArticleType m_Type;
 		private bool m_IsModification = false;
-		private List<PlasticArticle> m_Children;
+		private List<string> m_Children;
 
-		public override ArticleType Type => ArticleType.Tool;
-		public override string Url => $@"http://server1:85/tool/{Name}";
+		public override string Name => m_Name;
+		public override string Url => m_Url;
 		public override string Path
 		{ 
 			get 
@@ -28,24 +36,46 @@ namespace ArticleOpenUI.Models
 					return $@"\\server1\ArtikelFiler\ArticleFiles\{Name}\{Name}";
 			}
 		}
-		public override List<PlasticArticle> Children { get => m_Children; }
+		public override string Cad => m_Cad;
+		public override string Customer => m_Customer;
+		public override string Shrinkage => m_Shrinkage;
+		public override string Machine => m_Machine;
+		public override ArticleType Type => m_Type;
+		public override List<string> Children => m_Children;
 
-		public ToolArticle(string name)
+
+		public ToolArticle(ArticleInfo info)
 		{
-			if (IsNameValid(name))
-            {
-                Name = name;
-            }
+			if (info == null) 
+				throw new ArgumentNullException(nameof(info));
 
-
+			if (IsNameValid(info.Name))
+                m_Name = info.Name;
             m_IsModification = IsModification(Name);
+
+			m_Url = info.URL;
+			m_Type = info.Type;
+			m_Cad = info.CAD;
+			m_Customer = info.Customer;
+			m_Shrinkage = info.Shrinkage;
+			m_Machine = info.Machine;
+
+			m_Children = new List<string>();
+			if (info.Plastics != null && info.Plastics.Any())
+			{
+				foreach (var child in info.Plastics)
+				{
+					m_Children.Add(child);
+				}
+
+			}
+
 
 			if (!Directory.Exists(Path))
 				throw new DirectoryNotFoundException($"\"{Path}\" does not exist.");
 
-			m_Children = GetChildren();
 		}
-		public override List<PlasticArticle> GetChildren()
+		public List<PlasticArticle> GetChildren()
 		{
 			List<PlasticArticle> result = new();
 

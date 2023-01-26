@@ -2,7 +2,6 @@
 {
     public enum ArticleType
     {
-        None,
         Tool,
         Plastic
     }
