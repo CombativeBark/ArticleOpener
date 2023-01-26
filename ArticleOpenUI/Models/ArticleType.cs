@@ -1,8 +1,8 @@
 ﻿namespace ArticleOpenUI.Models
 {
-    public enum ArticleType
-    {
-        Tool,
-        Plastic
-    }
+	public enum ArticleType
+	{
+		Tool,
+		Plastic
+	}
 }
