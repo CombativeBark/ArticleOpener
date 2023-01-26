@@ -154,7 +154,9 @@ namespace ArticleOpenUI.Models
 							if (match.Success)
 							{
 								CAD = match.Groups[1].Value;
-								Shrinkage = match.Groups[2].Value;
+								Shrinkage = match.Groups[2].Value
+									.ToLower()
+									.Replace("krymp ", "");
 							}
 						}
 						break;
