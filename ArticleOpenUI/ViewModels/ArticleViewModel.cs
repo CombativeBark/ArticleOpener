@@ -148,7 +148,7 @@ namespace ArticleOpenUI.ViewModels
             {
 				try
 				{
-					OpenArticles(ArticleOpenMode.All, ArticleOpenFilter.All);
+					OpenArticles();
 				}
 				catch (Exception e)
 				{
@@ -196,7 +196,7 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 		}
-        private void OpenArticles(ArticleOpenMode openMode, ArticleOpenFilter openFilter)
+        private void OpenArticles()
 		{
 			m_ArticleQueue.ForEach(article =>
 			{
