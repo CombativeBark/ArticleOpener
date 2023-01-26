@@ -21,7 +21,7 @@ namespace ArticleOpenUI.Models
 		public string Customer { get; private set; } = "Unknown";
 		public string Description { get; private set; } = "Unknown";
 		public string Material { get; private set; } = "Unknown";
-		public string Shrinkage { get; private set; } = "Unknown";
+		public string Shrinkage { get; private set; } = "";
 		public string Machine { get; private set; } = "Unknown";
 		public ArticleType Type { get; private init; }
 
