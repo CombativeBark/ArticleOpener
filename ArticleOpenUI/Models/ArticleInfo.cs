@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -30,6 +31,78 @@ namespace ArticleOpenUI.Models
 				PullFromWeb();
 		}
 
+		private bool IsNameValid(string name)
+		{
+			if (name == null || string.IsNullOrWhiteSpace(name))
+				return false;
+			return true;
+		}
+		private ArticleType GetArticleType()
+		{
+			string[] toolPattern =
+			{
+				@"^\d{6}V\d?$",
+				@"^\d{6}V\d$"
+			};
+			string[] plasticPattern =
+			{
+				@"^\d{6}P(?:-\d)?$",
+				@"^\d{6}P-\d$"
+			};
+
+			if (Regex.IsMatch(Name, toolPattern[0], RegexOptions.Compiled))
+			{
+				if (Regex.IsMatch(Name, toolPattern[1], RegexOptions.Compiled))
+					m_IsModification = true;
+
+				return ArticleType.Tool;
+			}
+			else if (Regex.IsMatch(Name, plasticPattern[0], RegexOptions.Compiled))
+			{
+				if (Regex.IsMatch(Name, plasticPattern[1], RegexOptions.Compiled))
+					m_IsVariant = true;
+				return ArticleType.Plastic;
+			}
+			else
+			{
+				throw new ArgumentException($"Couldn't find type for article {Name}");
+			}
+		}
+		private string GetPath()
+		{
+			var basePath = $@"\\server1\ArtikelFiler\ArticleFiles\{Name}";
+			if (m_IsModification)
+				basePath = basePath.Substring(0, basePath.Length - 1);
+			else if (m_IsVariant)
+				basePath = basePath.Substring(0, basePath.Length - 2);
+
+			if (Type == ArticleType.Tool || Type == ArticleType.Plastic)
+			{
+				m_FullPath = basePath + @"\" + Name;
+
+				if (!Directory.Exists(m_FullPath))
+					throw new DirectoryNotFoundException($"Directory for {Name} doesn't exist.");
+
+				if (m_IsModification || m_IsVariant)
+					return basePath;
+
+				return m_FullPath;
+			}
+
+			throw new ArgumentException($"{Name} doesn't have a corresponding path.");
+		}
+		private string GetURL()
+		{
+			switch (Type)
+			{
+				case ArticleType.Tool:
+					return $@"http://server1:85/tool/{Name}";
+				case ArticleType.Plastic:
+					return $@"http://server1:85/plastic/{Name}";
+				default:
+					throw new ArgumentException($"Article type of {Name} is not support");
+			}
+		}
 		private void PullFromWeb()
 		{
 			var doc = new HtmlDocument();
@@ -112,44 +185,6 @@ namespace ArticleOpenUI.Models
 				}
 			}
 		}
-
-		private ArticleType GetArticleType()
-		{
-			const string toolPattern = @"^\d{6}V\d?$";
-			const string plasticPattern = @"^\d{6}P(?:-\d)?$";
-
-			if (Regex.IsMatch(Name, toolPattern, RegexOptions.Compiled))
-			{
-				return ArticleType.Tool;
-			}
-			else if (Regex.IsMatch(Name, plasticPattern, RegexOptions.Compiled))
-			{
-				return ArticleType.Plastic;
-			}
-			else
-			{
-				throw new ArgumentException($"Couldn't find type for article {Name}");
-			}
-		}
-		private string GetURL()
-		{
-			switch (Type)
-			{
-				case ArticleType.Tool:
-					return $@"http://server1:85/tool/{Name}";
-				case ArticleType.Plastic:
-					return $@"http://server1:85/plastic/{Name}";
-				default:
-					throw new ArgumentException($"Article type of {Name} is not support");
-			}
-		}
-		private bool IsPlasticsNode(HtmlNode node)
-		{
-			const string plasticPattern = @"^\d{6}P(?:-\d)?$";
-			var output = Regex.IsMatch(node.InnerText, plasticPattern, RegexOptions.Compiled);
-			return output;
-		}
-
 		private List<string> GetPlasticsFromNode(HtmlNode node)
 		{
 			var output = new List<string>();
@@ -161,6 +196,12 @@ namespace ArticleOpenUI.Models
 					output.Add(tdNodes[i].InnerText);
 			}
 
+			return output;
+		}
+		private bool IsPlasticsNode(HtmlNode node)
+		{
+			const string plasticPattern = @"^\d{6}P(?:-\d)?$";
+			var output = Regex.IsMatch(node.InnerText, plasticPattern, RegexOptions.Compiled);
 			return output;
 		}
 	}

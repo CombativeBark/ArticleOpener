@@ -6,26 +6,12 @@ namespace ArticleOpenUI.Models
 {
     public static class ArticleFactory
     {
-		/* input string
-		 * split/parse string
-		 * error on bad input
-		 * 
-		 * try to create articles
-		 * create tools
-		 * populate tools with info
-		 * if tool has children
-		 * create plastics
-		 * populate plastics with info
-		 * return articles
-		 */
-		
         public static ArticleBase CreateArticle(string name)
         {
 			var info = GetInfo(name);
 
 			if (info == null)
 				throw new ArgumentException($"Error: Can't process article number {name}");
-
 
 			switch (info.Type)
 			{

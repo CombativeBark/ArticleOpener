@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using HtmlAgilityPack;
-using System.Threading.Tasks;
-using System.Windows;
 using System.IO;
-using System.Reflection.PortableExecutable;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ArticleOpenUI.Models
 {

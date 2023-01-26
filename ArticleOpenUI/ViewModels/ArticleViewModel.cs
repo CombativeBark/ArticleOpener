@@ -30,8 +30,8 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
-		public bool OpenToolsFilter 
-		{ 
+		public bool OpenToolsFilter
+		{
 			get
 			{
 				return m_OpenToolsFilter;
@@ -40,10 +40,10 @@ namespace ArticleOpenUI.ViewModels
 			{
 				m_OpenToolsFilter = value;
 				NotifyOfPropertyChange(() => OpenToolsFilter);
-			} 
+			}
 		}
-		public bool OpenPlasticsFilter 
-		{ 
+		public bool OpenPlasticsFilter
+		{
 			get
 			{
 				return m_OpenPlasticsFilter;
@@ -52,10 +52,10 @@ namespace ArticleOpenUI.ViewModels
 			{
 				m_OpenPlasticsFilter = value;
 				NotifyOfPropertyChange(() => OpenPlasticsFilter);
-			} 
+			}
 		}
-		public bool OpenInfoFilter 
-		{ 
+		public bool OpenInfoFilter
+		{
 			get
 			{
 				return m_OpenInfoFilter;
@@ -64,10 +64,10 @@ namespace ArticleOpenUI.ViewModels
 			{
 				m_OpenInfoFilter = value;
 				NotifyOfPropertyChange(() => OpenInfoFilter);
-			} 
+			}
 		}
-		public bool OpenFoldersFilter 
-		{ 
+		public bool OpenFoldersFilter
+		{
 			get
 			{
 				return m_OpenFoldersFilter;
@@ -76,7 +76,7 @@ namespace ArticleOpenUI.ViewModels
 			{
 				m_OpenFoldersFilter = value;
 				NotifyOfPropertyChange(() => OpenFoldersFilter);
-			} 
+			}
 		}
 
 		public ArticleViewModel()
@@ -97,18 +97,18 @@ namespace ArticleOpenUI.ViewModels
 			if (keyArgs == null || string.IsNullOrWhiteSpace(Input))
 				return;
 
-            switch (keyArgs.Key)
-            {
-                case Key.Enter:
-                    SearchArticle();
-                    break;
-                case Key.Escape:
-                    ClearQueue();
-                    break;
-                default:
-                    break;
-            }
-        }
+			switch (keyArgs.Key)
+			{
+				case Key.Enter:
+					SearchArticle();
+					break;
+				case Key.Escape:
+					ClearQueue();
+					break;
+				default:
+					break;
+			}
+		}
 		public void SearchArticle()
 		{
 			if (Input == null || string.IsNullOrEmpty(Input))
@@ -123,7 +123,7 @@ namespace ArticleOpenUI.ViewModels
 					AddToQueue(article);
 					if (article.Children != null && article.Children.Any())
 					{
-						article.Children.ForEach(x => 
+						article.Children.ForEach(x =>
 						{
 							var childArticle = ArticleFactory.CreateArticle(x);
 							AddToQueue(childArticle);
@@ -132,11 +132,11 @@ namespace ArticleOpenUI.ViewModels
 				}
 				catch (Exception e)
 				{
-					#if (DEBUG)
-					MessageBox.Show($"Error: {e.Message}\n\n{e.StackTrace}" , "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-					#else
+#if (DEBUG)
+					MessageBox.Show($"Error: {e.Message}\n\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+#else
 					MessageBox.Show("Error: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-					#endif
+#endif
 
 				}
 			}
@@ -145,7 +145,7 @@ namespace ArticleOpenUI.ViewModels
 		{
 			if (m_ArticleQueue != null &&
 				m_ArticleQueue.Count > 0)
-            {
+			{
 				try
 				{
 					OpenArticles();
@@ -154,8 +154,8 @@ namespace ArticleOpenUI.ViewModels
 				{
 					MessageBox.Show(e.Message, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
-            }
-            else
+			}
+			else
 			{
 				MessageBox.Show("No articles to open");
 			}
@@ -196,7 +196,7 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 		}
-        private void OpenArticles()
+		private void OpenArticles()
 		{
 			m_ArticleQueue.ForEach(article =>
 			{
@@ -211,10 +211,10 @@ namespace ArticleOpenUI.ViewModels
 				}
 
 				if (OpenInfoFilter)
-                {
-                    article.OpenInfo();
+				{
+					article.OpenInfo();
 					Thread.Sleep(100);
-                }
+				}
 
 			});
 		}
@@ -249,5 +249,5 @@ namespace ArticleOpenUI.ViewModels
 			}
 			return result;
 		}
-    }
+	}
 }

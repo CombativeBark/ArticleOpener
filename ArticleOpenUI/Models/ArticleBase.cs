@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Windows.Navigation;
 
 namespace ArticleOpenUI.Models
 {
@@ -38,7 +36,6 @@ namespace ArticleOpenUI.Models
                 throw new Exception($"Error: Directory for Article {Name} doesn't exist");
             }
         }
-
         public void OpenInfo()
         {
             ProcessStartInfo startInfo = new()
