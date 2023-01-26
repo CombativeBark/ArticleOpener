@@ -126,7 +126,7 @@
 					<DataGridTextColumn Binding="{Binding Material}" Header="Material"
                                         MinWidth="64" Width="*"/>
 					<DataGridTextColumn Binding="{Binding Shrinkage}" Header="Shrinkage"
-                                        MinWidth="96" MaxWidth="96"/>
+                                        MinWidth="32" MaxWidth="96"/>
 					<DataGridTextColumn Binding="{Binding Machine}" Header="Machine"
                                         MinWidth="112" MaxWidth="112"/>
 					<DataGridTemplateColumn MinWidth="48" MaxWidth="48">
