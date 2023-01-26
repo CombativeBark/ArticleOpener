@@ -165,7 +165,7 @@ namespace ArticleOpenUI.Models
 							{
 								if (child.ChildNodes.Any() && child.ChildNodes[0].InnerText.ToLower() == "plastic")
 								{
-									var matches = Regex.Match(child.ChildNodes[2].InnerText, @"^\d{6} - (.*)(?: (\d[,.]\d+%)| [Xx]%)?$", RegexOptions.Compiled);
+									var matches = Regex.Match(child.ChildNodes[2].InnerText, @"^\d{6}(?:-\d)? - (.*)(?: (\d[,.]\d+%)| [Xx]%)?$", RegexOptions.Compiled);
 									if (matches.Success && matches.Groups[1].Success)
 										Material = matches.Groups[1].Value.Replace("&#x2122", "™");
 
