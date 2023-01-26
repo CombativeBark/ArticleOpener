@@ -28,7 +28,7 @@ namespace ArticleOpenUI.Models
 		public ArticleInfo(string name)
 		{
 			if (IsNameValid(name))
-			Name = name;
+				Name = name;
 			else
 				throw new ArgumentException($"{name} is not a valid article.");
 
@@ -152,7 +152,7 @@ namespace ArticleOpenUI.Models
 							var match = Regex.Match(data, @".*\d{6} (\w+) // ([Kk]rymp \d[,.]\d+%).*", RegexOptions.Compiled);
 
 							if (match.Success)
-							{ 
+							{
 								CAD = match.Groups[1].Value;
 								Shrinkage = match.Groups[2].Value;
 							}
