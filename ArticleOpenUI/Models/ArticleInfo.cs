@@ -36,7 +36,6 @@ namespace ArticleOpenUI.Models
 			Path = GetPath();
 			URL = GetURL();
 
-			if (URL != null)
 				PullFromWeb();
 		}
 
