@@ -118,14 +118,14 @@ namespace ArticleOpenUI.Models
 			var web = new HtmlWeb();
 
 			doc = web.Load(URL);
-			if (doc == null)
-				throw new HtmlWebException("Couldn't load web page.");
+			if (doc == null || web.StatusCode != System.Net.HttpStatusCode.OK)
+				throw new HtmlWebException($"Couldn't load web page for {Name}.");
 
 			var divContent = doc.DocumentNode
 				.SelectSingleNode("//body/div[@class='page']/div[@class='main']/div[@class='content px-4']");
 
 			if (divContent == null)
-				throw new NodeNotFoundException();
+				throw new NodeNotFoundException($"Couldn't find parse web page for {Name}");
 
 			var filteredList = divContent.ChildNodes
 				.Where(x => x.Name != "#text")
