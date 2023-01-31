@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ArticleOpenUI.Models
@@ -113,8 +115,12 @@ namespace ArticleOpenUI.Models
 		}
 		private void PullFromWeb()
 		{
-			var doc = new HtmlDocument();
+			HtmlDocument doc;
 			var web = new HtmlWeb();
+
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+			web.AutoDetectEncoding = false;
+			web.OverrideEncoding = Encoding.UTF8;
 
 			doc = web.Load(URL);
 			if (doc == null || web.StatusCode != System.Net.HttpStatusCode.OK)
@@ -141,8 +147,8 @@ namespace ArticleOpenUI.Models
 				switch (node.InnerText.ToLower())
 				{
 					case ("customer"):
-						Customer = nextNode.SelectNodes(".//td")[0].InnerText;
-						Description = filteredList[i + 2].SelectNodes(".//td")[0].InnerText;
+						Customer = WebUtility.HtmlDecode(nextNode.SelectNodes(".//td")[0].InnerText);
+						Description = WebUtility.HtmlDecode(filteredList[i + 2].SelectNodes(".//td")[0].InnerText);
 						break;
 					case ("notes"):
 						if (Type == ArticleType.Tool)
@@ -152,10 +158,10 @@ namespace ArticleOpenUI.Models
 
 							if (match.Success)
 							{
-								CAD = match.Groups[1].Value;
-								Shrinkage = match.Groups[2].Value
+								CAD = WebUtility.HtmlDecode(match.Groups[1].Value);
+								Shrinkage = WebUtility.HtmlDecode(match.Groups[2].Value
 									.ToLower()
-									.Replace("krymp ", "");
+									.Replace("krymp ", ""));
 							}
 						}
 						break;
@@ -168,10 +174,10 @@ namespace ArticleOpenUI.Models
 								{
 									var matches = Regex.Match(child.ChildNodes[2].InnerText, @"^\d{6}(?:-\d)?\s*-\s*(.*?)\s*(\d[,.]\d+%|[Xx]%)?\s*$", RegexOptions.Compiled);
 									if (matches.Success && matches.Groups[1].Success)
-										Material = matches.Groups[1].Value.Replace("&#x2122", "™");
+										Material = WebUtility.HtmlDecode(matches.Groups[1].Value);
 
 									if (matches.Groups.Count > 2 && matches.Groups[2].Success)
-										Shrinkage = matches.Groups[2].Value;
+										Shrinkage = WebUtility.HtmlDecode(matches.Groups[2].Value);
 									break;
 								}
 							}
@@ -182,7 +188,7 @@ namespace ArticleOpenUI.Models
 						{
 							if (Regex.IsMatch(child.ChildNodes[0].InnerText, @"^21[1-9]0$", RegexOptions.Compiled))
 							{
-								Machine = child.ChildNodes[2].InnerText;
+								Machine = WebUtility.HtmlDecode(child.ChildNodes[2].InnerText);
 								break;
 							}
 						}
