@@ -180,7 +180,7 @@ namespace ArticleOpenUI.Models
 					case ("operations"):
 						foreach (var child in nextNode.ChildNodes[2].ChildNodes)
 						{
-							if (child.ChildNodes[0].InnerText == "2120" || child.ChildNodes[0].InnerText == "2110")
+							if (Regex.IsMatch(child.ChildNodes[0].InnerText, @"^21[1-9]0$", RegexOptions.Compiled))
 							{
 								Machine = child.ChildNodes[2].InnerText;
 								break;
