@@ -7,10 +7,11 @@ namespace ArticleOpenUI.Models
 	{
 		public static ArticleBase CreateArticle(string name)
 		{
-			var info = new ArticleInfo(name);
+			var articleName = name.ToUpper();
+			var info = new ArticleInfo(articleName);
 
 			if (info == null)
-				throw new ArgumentException($"Error: Can't process info for article {name}");
+				throw new ArgumentException($"Error: Can't process info for article {articleName}");
 
 			switch (info.Type)
 			{
@@ -21,7 +22,7 @@ namespace ArticleOpenUI.Models
 					var plasticArticle = new PlasticArticle(info);
 					return plasticArticle;
 				default:
-					throw new Exception($"Error: {name} is not a supported article type");
+					throw new Exception($"Error: {articleName} is not a supported article type");
 			}
 		}
 	}
