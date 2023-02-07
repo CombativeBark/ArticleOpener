@@ -38,7 +38,7 @@ namespace ArticleOpenUI.Models
 			Path = GetPath();
 			URL = GetURL();
 
-				PullFromWeb();
+			PullFromWeb();
 		}
 
 		private bool IsNameValid(string name)
@@ -60,16 +60,16 @@ namespace ArticleOpenUI.Models
 				@"^\d{6}P-\d$"
 			};
 
-			if (Regex.IsMatch(Name, toolPattern[0], RegexOptions.Compiled))
+			if (Regex.IsMatch(Name, toolPattern[0]))
 			{
-				if (Regex.IsMatch(Name, toolPattern[1], RegexOptions.Compiled))
+				if (Regex.IsMatch(Name, toolPattern[1]))
 					m_IsModification = true;
 
 				return ArticleType.Tool;
 			}
-			else if (Regex.IsMatch(Name, plasticPattern[0], RegexOptions.Compiled))
+			else if (Regex.IsMatch(Name, plasticPattern[0]))
 			{
-				if (Regex.IsMatch(Name, plasticPattern[1], RegexOptions.Compiled))
+				if (Regex.IsMatch(Name, plasticPattern[1]))
 					m_IsVariant = true;
 				return ArticleType.Plastic;
 			}
@@ -138,60 +138,28 @@ namespace ArticleOpenUI.Models
 
 			for (int i = 1; i < filteredList.Count; i++)
 			{
-				var node = filteredList[i];
-				if (node.Name == "table")
+				var currentNode = filteredList[i];
+				if (currentNode.Name == "table")
 					continue;
 
 				var nextNode = filteredList[i + 1];
 
-				switch (node.InnerText.ToLower())
+				switch (currentNode.InnerText.ToLower())
 				{
 					case ("customer"):
-						Customer = WebUtility.HtmlDecode(nextNode.SelectNodes(".//td")[0].InnerText);
-						Description = WebUtility.HtmlDecode(filteredList[i + 2].SelectNodes(".//td")[0].InnerText);
+						var customerNode = nextNode.SelectNodes(".//td")[0];
+						Customer = WebUtility.HtmlDecode(customerNode?.InnerText) ?? "";
+						var descriptionNode = filteredList[i + 2].SelectNodes(".//td")[0];
+						Description = WebUtility.HtmlDecode(descriptionNode?.InnerText) ?? "";
 						break;
 					case ("notes"):
-						if (Type == ArticleType.Tool)
-						{
-							var data = nextNode.SelectNodes(".//td")[1].InnerText;
-							var match = Regex.Match(data, @".*\d{6} (\w+) // ([Kk]rymp \d(?:[,.]\d+)?%).*", RegexOptions.Compiled);
-
-							if (match.Success)
-							{
-								CAD = WebUtility.HtmlDecode(match.Groups[1].Value);
-								Shrinkage = WebUtility.HtmlDecode(match.Groups[2].Value
-									.ToLower()
-									.Replace("krymp ", ""));
-							}
-						}
+						ProcessProjectNotes(nextNode);
 						break;
 					case ("material"):
-						if (Type == ArticleType.Plastic)
-						{
-							foreach (var child in nextNode.ChildNodes[2].ChildNodes)
-							{
-								if (child.ChildNodes.Any() && child.ChildNodes[0].InnerText.ToLower() == "plastic")
-								{
-									var matches = Regex.Match(child.ChildNodes[2].InnerText, @"^\d{6}(?:-\d)?\s*-\s*(.*?)\s*(\d[,.]\d+%|[Xx]%)?\s*$", RegexOptions.Compiled);
-									if (matches.Success && matches.Groups[1].Success)
-										Material = WebUtility.HtmlDecode(matches.Groups[1].Value);
-
-									if (matches.Groups.Count > 2 && matches.Groups[2].Success)
-										Shrinkage = WebUtility.HtmlDecode(matches.Groups[2].Value);
-									break;
-								}
-							}
-						}
+						ProcessMaterialNode(nextNode);
 						break;
 					case ("operations"):
-						foreach (var child in nextNode.ChildNodes[2].ChildNodes)
-						{
-							if (Regex.IsMatch(child.ChildNodes[0].InnerText, @"^21[1-9]0$", RegexOptions.Compiled))
-							{
-								Machine = WebUtility.HtmlDecode(child.ChildNodes[2].InnerText);
-								break;
-							}
-						}
+						ProcessOperations(nextNode);
 						break;
 					case ("plastics"):
 						if (Type == ArticleType.Tool)
@@ -202,12 +170,90 @@ namespace ArticleOpenUI.Models
 				}
 			}
 		}
-		private List<string> GetPlasticsFromNode(HtmlNode node)
+
+		private void ProcessOperations(HtmlNode rootNode)
+		{
+			Regex regex = new Regex(@"^21[1-9]0$", RegexOptions.Compiled);
+
+			foreach (var child in rootNode.ChildNodes[2].ChildNodes)
+			{
+				if (!regex.IsMatch(child.ChildNodes[0].InnerText))
+					continue;
+
+				Machine = WebUtility.HtmlDecode(child.ChildNodes[2].InnerText);
+				break;
+			}
+		}
+
+		private void ProcessMaterialNode(HtmlNode rootNode)
+		{
+			if (Type != ArticleType.Plastic)
+				return;
+
+			// TODO: Fix, Then improve RegEx
+			Regex regex = new Regex(@"^\d{6}(?:-\d)?\s*-\s*(?<Material>.*?)\s?(?:(?<Shrinkage>\b\d(?:[,.]\d+)?%)|[Xx]%)?", RegexOptions.Compiled);
+
+			// TODO: Improve Readability
+			foreach (var rootChild in rootNode.ChildNodes[2].ChildNodes)
+			{
+				var nodes = rootChild.ChildNodes;
+				if (!nodes.Any() || nodes[0].InnerText.ToLower() != "plastic")
+					continue;
+				var data = nodes[2]?.InnerText;
+				if (data == null)
+					return;
+
+				var decodedData = WebUtility.HtmlDecode(data);
+				var regExResult = regex.Match(decodedData);
+				if (!regExResult.Success)
+					return;
+
+				var materialCapture = regExResult.Groups["Material"];
+				if (materialCapture.Success)
+					Material = materialCapture.Value;
+
+				if (regExResult.Groups.Count < 2)
+					return;
+
+				var shrinkageCapture = regExResult.Groups["Shrinkage"];
+				if (shrinkageCapture.Success)
+					Shrinkage = shrinkageCapture.Value;
+
+				break;
+			}
+		}
+
+		private void ProcessProjectNotes(HtmlNode rootNode)
+		{
+			if (Type != ArticleType.Tool)
+				return;
+
+			var data = rootNode.SelectNodes(".//td")[1].InnerText;
+			var decodedData = WebUtility.HtmlDecode(data);
+			var regExResults = Regex.Match(decodedData, @"\d{6} (?<CAD>\w+) // (?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%)");
+
+			if (!regExResults.Success ||
+				regExResults.Groups.Count < 1)
+				return;
+
+			var cadOperator = regExResults.Groups["CAD"];
+			if (cadOperator.Success &&
+				!cadOperator.Value.Equals("Andreas"))
+				CAD = cadOperator.Value;
+
+			var shrinkageCapture = regExResults.Groups["Shrinkage"];
+			if (shrinkageCapture.Success)
+				Shrinkage = shrinkageCapture.Value
+					.ToLower()
+					.Replace("krymp ", "");
+		}
+
+		private List<string> GetPlasticsFromNode(HtmlNode rootNode)
 		{
 			var output = new List<string>();
 
-			var tdNodes = node.SelectNodes(".//td");
-			for (int i = 0; i < tdNodes?.Count(); i++)
+			var tdNodes = rootNode.SelectNodes(".//td");
+			for (int i = 0; i < tdNodes?.Count; i++)
 			{
 				if (i % 3 == 0 && IsPlasticsNode(tdNodes[i]))
 					output.Add(tdNodes[i].InnerText);
@@ -217,8 +263,7 @@ namespace ArticleOpenUI.Models
 		}
 		private bool IsPlasticsNode(HtmlNode node)
 		{
-			const string plasticPattern = @"^\d{6}P(?:-\d)?$";
-			var output = Regex.IsMatch(node.InnerText, plasticPattern, RegexOptions.Compiled);
+			bool output = Regex.IsMatch(node.InnerText, @"^\d{6}P(?:-\d)?$");
 			return output;
 		}
 	}
