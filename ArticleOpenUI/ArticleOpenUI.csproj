@@ -9,26 +9,9 @@
     <ApplicationIcon>Resources\ArtOpenMulti.ico</ApplicationIcon>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <None Remove="Resources\ArtOpen.ico" />
-    <None Remove="Resources\ArtOpenMulti.ico" />
-    <None Remove="Views\shell32.dll" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Content Include="Resources\ArtOpenMulti.ico" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="4.0.212" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\ArtOpen.ico" />
-    <Resource Include="Resources\ArtOpenMulti.ico" />
   </ItemGroup>
 
 </Project>
