@@ -33,17 +33,16 @@ namespace ArticleOpenUI.Models
 
 			Cad = Type == ArticleType.Tool ? info.CAD : "";
 			Customer = info.Customer;
-			Description	= Type == ArticleType.Plastic ? info.Description : "";
+			Description = Type == ArticleType.Plastic ? info.Description : "";
 			Material = Type == ArticleType.Plastic ? info.Material : "";
 			Shrinkage = info.Shrinkage;
 			Machine = info.Machine;
 
 			if (info.Plastics is not null && info.Plastics.Any())
 				Children = info.Plastics;
-			else 
+			else
 				Children = null;
 		}
-
 		public void OpenFolder()
 		{
 			if (Directory.Exists(Path))
@@ -78,7 +77,7 @@ namespace ArticleOpenUI.Models
 			{
 				if (Type == ArticleType.Tool)
 					basePath = basePath.Substring(0, basePath.Length - 1);
-				else if ( Type == ArticleType.Plastic)
+				else if (Type == ArticleType.Plastic)
 					basePath = basePath.Substring(0, basePath.Length - 2);
 			}
 

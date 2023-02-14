@@ -10,7 +10,6 @@ using System.Windows.Input;
 
 namespace ArticleOpenUI.ViewModels
 {
-
 	class ArticleViewModel : Screen
 	{
 		private List<ArticleModel> m_ArticleQueue;
@@ -196,6 +195,7 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 		}
+
 		private void OpenArticles()
 		{
 			m_ArticleQueue.ForEach(article =>
