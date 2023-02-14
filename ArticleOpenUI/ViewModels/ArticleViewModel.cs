@@ -13,14 +13,14 @@ namespace ArticleOpenUI.ViewModels
 
 	class ArticleViewModel : Screen
 	{
-		private List<ArticleBase> m_ArticleQueue;
+		private List<ArticleModel> m_ArticleQueue;
 		private string m_Input;
 		private bool m_OpenToolsFilter;
 		private bool m_OpenPlasticsFilter;
 		private bool m_OpenInfoFilter;
 		private bool m_OpenFoldersFilter;
 
-		public ObservableCollection<ArticleBase> ArticleList { get; private set; }
+		public ObservableCollection<ArticleModel> ArticleList { get; private set; }
 		public string Input
 		{
 			get { return m_Input; }
@@ -167,21 +167,21 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void OpenFolder(object? context)
 		{
-			var article = context as ArticleBase;
+			var article = context as ArticleModel;
 			if (article == null) return;
 
 			article.OpenFolder();
 		}
 		public void OpenInfo(object? context)
 		{
-			var article = context as ArticleBase;
+			var article = context as ArticleModel;
 			if (article == null) return;
 
 			article.OpenInfo();
 		}
 		public void RemoveFromQueue(object? context)
 		{
-			var item = context as ArticleBase;
+			var item = context as ArticleModel;
 
 			if (item == null)
 				return;
@@ -218,7 +218,7 @@ namespace ArticleOpenUI.ViewModels
 
 			});
 		}
-		private void AddToQueue(ArticleBase article)
+		private void AddToQueue(ArticleModel article)
 		{
 			if (!IsInQueue(article.Name))
 			{
