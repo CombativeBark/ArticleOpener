@@ -10,8 +10,6 @@ namespace ArticleOpenUI.Models
 {
 	public class ArticleInfo
 	{
-		private string m_FullPath { get; set; } = "";
-
 		public string Name { get; private set; } = "";
 		public ArticleType Type { get; private set; }
 		public bool IsModOrVariant { get; private set; } = false;
