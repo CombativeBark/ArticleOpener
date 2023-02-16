@@ -152,8 +152,7 @@ namespace ArticleOpenUI.Models
 		// Gets Material & Shrinkage
 		private void ProcessMaterialNode(HtmlNode rootNode)
 		{
-			// TODO: Fix, Then improve RegEx
-			Regex regex = new Regex(@"^\d{6}(?:-\d)?\s-\s\b(?<Material>(?:(?<Plastic>\b.*),\s)?.*)\b(?:(?<Shrinkage>\b\d(?:[,.]\d+)?%)|\s[Xx]%)?$", RegexOptions.Compiled);
+			Regex regex = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?$");
 
 			// TODO: Improve Readability
 			foreach (var rootChild in rootNode.ChildNodes[2].ChildNodes)
@@ -167,6 +166,7 @@ namespace ArticleOpenUI.Models
 
 				var decodedData = WebUtility.HtmlDecode(data);
 				var regExResult = regex.Match(decodedData);
+				// regExResult.Success == False
 				if (!regExResult.Success)
 					return;
 
