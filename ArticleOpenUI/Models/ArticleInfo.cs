@@ -49,34 +49,32 @@ namespace ArticleOpenUI.Models
 		}
 		private ArticleType GetArticleType()
 		{
-			string[] toolPattern =
-			{
-				@"^\d{6}V\d?$",
-				@"^\d{6}V\d$"
-			};
-			string[] plasticPattern =
-			{
-				@"^\d{6}P(?:-\d)?$",
-				@"^\d{6}P-\d$"
-			};
+			string Pattern = @"(?:(^?<Tool>\d{6}V$)|(?<Modification>^\d{6}V\d$)|(?<Plastic>^\d{6}P$)|(?<Variant>^\d{6}P-\d$))";
+			var Matches = Regex.Matches(Name, Pattern, RegexOptions.IgnoreCase);
 
-			if (Regex.IsMatch(Name, toolPattern[0]))
+			for (int i = 1; i < Matches[0].Groups.Count; i++)
 			{
-				if (Regex.IsMatch(Name, toolPattern[1]))
-					m_IsModification = true;
+				var match = Matches[0].Groups[i];
+				if (!match.Success)
+					continue;
 
-				return ArticleType.Tool;
+				switch (match.Name)
+				{
+					case "Modification":
+						m_IsModification = true;
+						goto case "Tool";
+					case "Variant":
+						m_IsVariant = true;
+						goto case "Plastic";
+
+					case "Tool":
+						return ArticleType.Tool;
+					case "Plastic":
+						return ArticleType.Plastic;
+				}
 			}
-			else if (Regex.IsMatch(Name, plasticPattern[0]))
-			{
-				if (Regex.IsMatch(Name, plasticPattern[1]))
-					m_IsVariant = true;
-				return ArticleType.Plastic;
-			}
-			else
-			{
-				throw new ArgumentException($"Couldn't find type for article {Name}");
-			}
+
+			throw new ArgumentException($"Can't determine type of {Name}");
 		}
 		private string GetPath()
 		{
