@@ -82,6 +82,9 @@ namespace ArticleOpenUI.ViewModels
 		{
 			m_ArticleQueue = new();
 			m_Input = "";
+#if (DEBUG)
+			m_Input = "302981V";
+#endif
 
 			OpenToolsFilter = true;
 			OpenPlasticsFilter = true;
