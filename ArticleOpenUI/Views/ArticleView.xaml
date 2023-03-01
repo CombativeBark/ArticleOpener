@@ -10,7 +10,7 @@
 		Title="Article Opener V1.1.4" 
 		Height="480" Width="960" FontSize="14" 
 		WindowStartupLocation="CenterScreen">
-	<Grid Name="gridMain">
+	<Grid Name="gridMain" FocusManager.FocusedElement="{Binding ElementName=Input}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
