@@ -106,7 +106,7 @@ namespace ArticleOpenUI.Models
 		private ArticleType ResolveType()
 		{
 			if (Regex.IsMatch(Name, @"^\d{6}[VP](?:\d|-\d)$"))
-					IsModOrVariant = true;
+				IsModOrVariant = true;
 
 			if (Regex.IsMatch(Name, @"^\d{6}V\d?$"))
 				return ArticleType.Tool;
@@ -114,7 +114,7 @@ namespace ArticleOpenUI.Models
 				return ArticleType.Plastic;
 			else
 				throw new ArgumentException($"Couldn't find type for article {Name}");
-			}
+		}
 		private string GenerateUrl()
 		{
 			switch (Type)
@@ -149,16 +149,16 @@ namespace ArticleOpenUI.Models
 			// TODO: Improve Readability
 			foreach (var rootChild in rootNode.ChildNodes[2].ChildNodes)
 			{
-				var nodes = rootChild.ChildNodes;
-				if (!nodes.Any() || nodes[0].InnerText.ToLower() != "plastic")
+				var childNodes = rootChild.ChildNodes;
+				if (!childNodes.Any() || childNodes[0].InnerText.ToLower() != "plastic")
 					continue;
-				var data = nodes[2]?.InnerText;
-				if (data == null)
+
+				var rawData = childNodes[2]?.InnerText;
+				if (rawData == null)
 					return;
 
-				var decodedData = WebUtility.HtmlDecode(data);
+				var decodedData = WebUtility.HtmlDecode(rawData);
 				var regExResult = regex.Match(decodedData);
-				// regExResult.Success == False
 				if (!regExResult.Success)
 					return;
 
@@ -178,18 +178,18 @@ namespace ArticleOpenUI.Models
 		}
 		private void ProcessProjectNotes(HtmlNode rootNode)
 		{
-			var data = rootNode.SelectNodes(".//td")[1].InnerText;
-			var decodedData = WebUtility.HtmlDecode(data);
+			var rawData = rootNode.SelectNodes(".//td")[1].InnerText;
+			var decodedData = WebUtility.HtmlDecode(rawData);
 			var regExResults = Regex.Match(decodedData, @"\d{6} (?<CAD>\w+) // (?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%)");
 
 			if (!regExResults.Success ||
 				regExResults.Groups.Count < 1)
 				return;
 
-			var cadOperator = regExResults.Groups["CAD"];
-			if (cadOperator.Success &&
-				!cadOperator.Value.Equals("Andreas"))
-				CAD = cadOperator.Value;
+			var cadOperatorCapture = regExResults.Groups["CAD"];
+			if (cadOperatorCapture.Success &&
+				!cadOperatorCapture.Value.Equals("Andreas"))
+				CAD = cadOperatorCapture.Value;
 
 			var shrinkageCapture = regExResults.Groups["Shrinkage"];
 			if (shrinkageCapture.Success)
@@ -217,8 +217,12 @@ namespace ArticleOpenUI.Models
 		}
 		private bool IsNameValid(string name)
 		{
-			if (name == null || string.IsNullOrWhiteSpace(name))
+			if (name == null ||
+				string.IsNullOrWhiteSpace(name) ||
+				!Regex.IsMatch(name, @"^\d{6}[VvPp](?:\d|-\d)?$"))
+			{
 				return false;
+			}
 			return true;
 		}
 	}
