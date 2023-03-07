@@ -93,36 +93,16 @@ namespace ArticleOpenUI.Models
 		}
 		private ArticleType ResolveType()
 		{
-			// TODO: Refactor this mess
-			string[] toolPattern =
-			{
-				@"^\d{6}V\d?$",
-				@"^\d{6}V\d$"
-			};
-			string[] plasticPattern =
-			{
-				@"^\d{6}P(?:-\d)?$",
-				@"^\d{6}P-\d$"
-			};
-
-			if (Regex.IsMatch(Name, toolPattern[0]))
-			{
-				if (Regex.IsMatch(Name, toolPattern[1]))
+			if (Regex.IsMatch(Name, @"^\d{6}[VP](?:\d|-\d)$"))
 					IsModOrVariant = true;
 
+			if (Regex.IsMatch(Name, @"^\d{6}V\d?$"))
 				return ArticleType.Tool;
-			}
-			else if (Regex.IsMatch(Name, plasticPattern[0]))
-			{
-				if (Regex.IsMatch(Name, plasticPattern[1]))
-					IsModOrVariant = true;
+			else if (Regex.IsMatch(Name, @"^\d{6}P(?:-\d)?$"))
 				return ArticleType.Plastic;
-			}
 			else
-			{
 				throw new ArgumentException($"Couldn't find type for article {Name}");
 			}
-		}
 		private string GenerateUrl()
 		{
 			switch (Type)
