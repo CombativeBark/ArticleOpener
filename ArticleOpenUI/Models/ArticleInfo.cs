@@ -142,7 +142,7 @@ namespace ArticleOpenUI.Models
 			}
 		}
 		// Gets Material & Shrinkage
-		private void ProcessMaterialNode(HtmlNode rootNode)
+		private void ProcessMaterial(HtmlNode rootNode)
 		{
 			Regex regex = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?(?:\s+)?$");
 
