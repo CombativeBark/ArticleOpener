@@ -130,7 +130,7 @@
 					<DataGridTextColumn Binding="{Binding Shrinkage}" Header="Shrinkage"
                                         MinWidth="32" MaxWidth="96"/>
 					<DataGridTextColumn Binding="{Binding Machine}" Header="Machine"
-                                        MinWidth="112" MaxWidth="112"/>
+                                        MinWidth="132" MaxWidth="132"/>
 					<DataGridTemplateColumn MinWidth="48" MaxWidth="48">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
