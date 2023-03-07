@@ -64,33 +64,45 @@ namespace ArticleOpenUI.Models
 				if (currentNode.Name == "table")
 					continue;
 
-				var nextNode = filteredList[i + 1];
+				var nextNodes = new List<HtmlNode>();
+				for (int j = 1; filteredList[i + j].Name == "table" ; j++)
+				{
+					nextNodes.Add(filteredList[i + j]);
+					if (i + j == filteredList.Count - 1)
+						break;
+				}
 
 				switch (currentNode.InnerText.ToLower())
 				{
 					case ("customer"):
-						var customerNode = nextNode.SelectNodes(".//td")[0];
-						Customer = WebUtility.HtmlDecode(customerNode?.InnerText) ?? "";
-						var descriptionNode = filteredList[i + 2].SelectNodes(".//td")[0];
-						Description = WebUtility.HtmlDecode(descriptionNode?.InnerText) ?? "";
+						ProcessCustomer(nextNodes);
 						break;
 					case ("notes"):
-						ProcessProjectNotes(nextNode);
+						ProcessProjectNotes(nextNodes[0]);
 						break;
 					case ("material"):
-						ProcessMaterialNode(nextNode);
+						ProcessMaterial(nextNodes[0]);
 						break;
 					case ("operations"):
-						ProcessOperations(nextNode);
+						ProcessOperations(nextNodes[0]);
 						break;
 					case ("plastics"):
-						Plastics = GetPlasticsFromNode(nextNode);
+						Plastics = GetPlasticsFromNode(nextNodes[0]);
 						break;
 					default:
 						break;
 				}
 			}
 		}
+
+		private void ProcessCustomer(List<HtmlNode> nextNodes)
+		{
+			var customerNode = nextNodes[0].SelectNodes(".//td")[0];
+			Customer = WebUtility.HtmlDecode(customerNode?.InnerText) ?? "";
+			var descriptionNode = nextNodes[1]?.SelectNodes(".//td")[0];
+			Description = WebUtility.HtmlDecode(descriptionNode?.InnerText) ?? "";
+		}
+
 		private ArticleType ResolveType()
 		{
 			if (Regex.IsMatch(Name, @"^\d{6}[VP](?:\d|-\d)$"))
