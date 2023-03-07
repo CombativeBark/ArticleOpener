@@ -28,6 +28,7 @@ namespace ArticleOpenUI.Models
 
 			Name = info.Name;
 			Type = info.Type;
+			IsModOrVariant = info.IsModOrVariant;
 			Url = info.Url;
 			Path = GeneratePath();
 
