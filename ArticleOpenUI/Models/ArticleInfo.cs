@@ -1,7 +1,6 @@
 ﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -11,13 +10,10 @@ namespace ArticleOpenUI.Models
 {
 	public class ArticleInfo
 	{
-		private string m_FullPath { get; set; } = "";
-		private bool m_IsModification { get; set; } = false;
-		private bool m_IsVariant { get; set; } = false;
-
 		public string Name { get; private set; } = "";
-		public string Path { get; private set; } = "";
-		public string URL { get; private set; } = "";
+		public ArticleType Type { get; private set; }
+		public bool IsModOrVariant { get; private set; } = false;
+		public string Url { get; private set; } = "";
 		public List<string>? Plastics { get; private set; } = null;
 		public string CAD { get; private set; } = "Unknown";
 		public string Customer { get; private set; } = "Unknown";
@@ -25,7 +21,6 @@ namespace ArticleOpenUI.Models
 		public string Material { get; private set; } = "Unknown";
 		public string Shrinkage { get; private set; } = "";
 		public string Machine { get; private set; } = "Unknown";
-		public ArticleType Type { get; private init; }
 
 		public ArticleInfo(string name)
 		{
@@ -34,83 +29,12 @@ namespace ArticleOpenUI.Models
 			else
 				throw new ArgumentException($"{name} is not a valid article.");
 
-			Type = GetArticleType();
-			Path = GetPath();
-			URL = GetURL();
+			Type = ResolveType();
+			Url = GenerateUrl();
 
 			PullFromWeb();
 		}
 
-		private bool IsNameValid(string name)
-		{
-			if (name == null || string.IsNullOrWhiteSpace(name))
-				return false;
-			return true;
-		}
-		private ArticleType GetArticleType()
-		{
-			string Pattern = @"(?:(^?<Tool>\d{6}V$)|(?<Modification>^\d{6}V\d$)|(?<Plastic>^\d{6}P$)|(?<Variant>^\d{6}P-\d$))";
-			var Matches = Regex.Matches(Name, Pattern, RegexOptions.IgnoreCase);
-
-			for (int i = 1; i < Matches[0].Groups.Count; i++)
-			{
-				var match = Matches[0].Groups[i];
-				if (!match.Success)
-					continue;
-
-				switch (match.Name)
-				{
-					case "Modification":
-						m_IsModification = true;
-						goto case "Tool";
-					case "Variant":
-						m_IsVariant = true;
-						goto case "Plastic";
-
-					case "Tool":
-						return ArticleType.Tool;
-					case "Plastic":
-						return ArticleType.Plastic;
-				}
-			}
-
-			throw new ArgumentException($"Can't determine type of {Name}");
-		}
-		private string GetPath()
-		{
-			var basePath = $@"\\server1\ArtikelFiler\ArticleFiles\{Name}";
-			if (m_IsModification)
-				basePath = basePath.Substring(0, basePath.Length - 1);
-			else if (m_IsVariant)
-				basePath = basePath.Substring(0, basePath.Length - 2);
-
-			if (Type == ArticleType.Tool || Type == ArticleType.Plastic)
-			{
-				m_FullPath = basePath + @"\" + Name;
-
-				if (!Directory.Exists(m_FullPath))
-					throw new DirectoryNotFoundException($"Directory for {Name} doesn't exist.");
-
-				if (m_IsModification || m_IsVariant)
-					return basePath;
-
-				return m_FullPath;
-			}
-
-			throw new ArgumentException($"{Name} doesn't have a corresponding path.");
-		}
-		private string GetURL()
-		{
-			switch (Type)
-			{
-				case ArticleType.Tool:
-					return $@"http://server1:85/tool/{Name}";
-				case ArticleType.Plastic:
-					return $@"http://server1:85/plastic/{Name}";
-				default:
-					throw new ArgumentException($"Article type of {Name} is not support");
-			}
-		}
 		private void PullFromWeb()
 		{
 			HtmlDocument doc;
@@ -120,7 +44,7 @@ namespace ArticleOpenUI.Models
 			web.AutoDetectEncoding = false;
 			web.OverrideEncoding = Encoding.UTF8;
 
-			doc = web.Load(URL);
+			doc = web.Load(Url);
 			if (doc == null || web.StatusCode != System.Net.HttpStatusCode.OK)
 				throw new HtmlWebException($"Couldn't load web page for {Name}.");
 
@@ -140,28 +64,30 @@ namespace ArticleOpenUI.Models
 				if (currentNode.Name == "table")
 					continue;
 
-				var nextNode = filteredList[i + 1];
+				var nextNodes = new List<HtmlNode>();
+				for (int j = 1; filteredList[i + j].Name == "table" ; j++)
+				{
+					nextNodes.Add(filteredList[i + j]);
+					if (i + j == filteredList.Count - 1)
+						break;
+				}
 
 				switch (currentNode.InnerText.ToLower())
 				{
 					case ("customer"):
-						var customerNode = nextNode.SelectNodes(".//td")[0];
-						Customer = WebUtility.HtmlDecode(customerNode?.InnerText) ?? "";
-						var descriptionNode = filteredList[i + 2].SelectNodes(".//td")[0];
-						Description = WebUtility.HtmlDecode(descriptionNode?.InnerText) ?? "";
+						ProcessCustomer(nextNodes);
 						break;
 					case ("notes"):
-						ProcessProjectNotes(nextNode);
+						ProcessProjectNotes(nextNodes[0]);
 						break;
 					case ("material"):
-						ProcessMaterialNode(nextNode);
+						ProcessMaterial(nextNodes[0]);
 						break;
 					case ("operations"):
-						ProcessOperations(nextNode);
+						ProcessOperations(nextNodes[0]);
 						break;
 					case ("plastics"):
-						if (Type == ArticleType.Tool)
-							Plastics = GetPlasticsFromNode(nextNode);
+						Plastics = GetPlasticsFromNode(nextNodes[0]);
 						break;
 					default:
 						break;
@@ -169,6 +95,39 @@ namespace ArticleOpenUI.Models
 			}
 		}
 
+		private void ProcessCustomer(List<HtmlNode> nextNodes)
+		{
+			var customerNode = nextNodes[0].SelectNodes(".//td")[0];
+			Customer = WebUtility.HtmlDecode(customerNode?.InnerText) ?? "";
+			var descriptionNode = nextNodes[1]?.SelectNodes(".//td")[0];
+			Description = WebUtility.HtmlDecode(descriptionNode?.InnerText) ?? "";
+		}
+
+		private ArticleType ResolveType()
+		{
+			if (Regex.IsMatch(Name, @"^\d{6}[VP](?:\d|-\d)$"))
+				IsModOrVariant = true;
+
+			if (Regex.IsMatch(Name, @"^\d{6}V\d?$"))
+				return ArticleType.Tool;
+			else if (Regex.IsMatch(Name, @"^\d{6}P(?:-\d)?$"))
+				return ArticleType.Plastic;
+			else
+				throw new ArgumentException($"Couldn't find type for article {Name}");
+		}
+		private string GenerateUrl()
+		{
+			switch (Type)
+			{
+				case ArticleType.Tool:
+					return $@"http://server1:85/tool/{Name}";
+				case ArticleType.Plastic:
+					return $@"http://server1:85/plastic/{Name}";
+				default:
+					throw new ArgumentException($"Article type of {Name} is not support");
+			}
+		}
+		// Gets Machine
 		private void ProcessOperations(HtmlNode rootNode)
 		{
 			Regex regex = new Regex(@"^21[1-9]0$", RegexOptions.Compiled);
@@ -182,26 +141,23 @@ namespace ArticleOpenUI.Models
 				break;
 			}
 		}
-
-		private void ProcessMaterialNode(HtmlNode rootNode)
+		// Gets Material & Shrinkage
+		private void ProcessMaterial(HtmlNode rootNode)
 		{
-			if (Type != ArticleType.Plastic)
-				return;
-
-			// TODO: Fix, Then improve RegEx
-			Regex regex = new Regex(@"^\d{6}(?:-\d)?\s*-\s*(?<Material>.*?)\s?(?:(?<Shrinkage>\b\d(?:[,.]\d+)?%)|[Xx]%)?", RegexOptions.Compiled);
+			Regex regex = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?(?:\s+)?$");
 
 			// TODO: Improve Readability
 			foreach (var rootChild in rootNode.ChildNodes[2].ChildNodes)
 			{
-				var nodes = rootChild.ChildNodes;
-				if (!nodes.Any() || nodes[0].InnerText.ToLower() != "plastic")
+				var childNodes = rootChild.ChildNodes;
+				if (!childNodes.Any() || childNodes[0].InnerText.ToLower() != "plastic")
 					continue;
-				var data = nodes[2]?.InnerText;
-				if (data == null)
+
+				var rawData = childNodes[2]?.InnerText;
+				if (rawData == null)
 					return;
 
-				var decodedData = WebUtility.HtmlDecode(data);
+				var decodedData = WebUtility.HtmlDecode(rawData);
 				var regExResult = regex.Match(decodedData);
 				if (!regExResult.Success)
 					return;
@@ -220,24 +176,20 @@ namespace ArticleOpenUI.Models
 				break;
 			}
 		}
-
 		private void ProcessProjectNotes(HtmlNode rootNode)
 		{
-			if (Type != ArticleType.Tool)
-				return;
-
-			var data = rootNode.SelectNodes(".//td")[1].InnerText;
-			var decodedData = WebUtility.HtmlDecode(data);
+			var rawData = rootNode.SelectNodes(".//td")[1].InnerText;
+			var decodedData = WebUtility.HtmlDecode(rawData);
 			var regExResults = Regex.Match(decodedData, @"\d{6} (?<CAD>\w+) // (?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%)");
 
 			if (!regExResults.Success ||
 				regExResults.Groups.Count < 1)
 				return;
 
-			var cadOperator = regExResults.Groups["CAD"];
-			if (cadOperator.Success &&
-				!cadOperator.Value.Equals("Andreas"))
-				CAD = cadOperator.Value;
+			var cadOperatorCapture = regExResults.Groups["CAD"];
+			if (cadOperatorCapture.Success &&
+				!cadOperatorCapture.Value.Equals("Andreas"))
+				CAD = cadOperatorCapture.Value;
 
 			var shrinkageCapture = regExResults.Groups["Shrinkage"];
 			if (shrinkageCapture.Success)
@@ -245,7 +197,6 @@ namespace ArticleOpenUI.Models
 					.ToLower()
 					.Replace("krymp ", "");
 		}
-
 		private List<string> GetPlasticsFromNode(HtmlNode rootNode)
 		{
 			var output = new List<string>();
@@ -263,6 +214,16 @@ namespace ArticleOpenUI.Models
 		{
 			bool output = Regex.IsMatch(node.InnerText, @"^\d{6}P(?:-\d)?$");
 			return output;
+		}
+		private bool IsNameValid(string name)
+		{
+			if (name == null ||
+				string.IsNullOrWhiteSpace(name) ||
+				!Regex.IsMatch(name, @"^\d{6}[VvPp](?:\d|-\d)?$"))
+			{
+				return false;
+			}
+			return true;
 		}
 	}
 }
