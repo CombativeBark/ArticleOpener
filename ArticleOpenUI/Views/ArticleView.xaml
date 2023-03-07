@@ -7,7 +7,7 @@
 		xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
 		xmlns:cal="http://caliburnmicro.com" 
 		mc:Ignorable="d"
-		Title="Article Opener V1.1.4" 
+		Title="Article Opener V1.2.0" 
 		Height="480" Width="960" FontSize="14" 
 		WindowStartupLocation="CenterScreen">
 	<Grid Name="gridMain" FocusManager.FocusedElement="{Binding ElementName=Input}">
