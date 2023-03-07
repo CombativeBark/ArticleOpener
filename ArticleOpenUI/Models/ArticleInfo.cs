@@ -152,7 +152,7 @@ namespace ArticleOpenUI.Models
 		// Gets Material & Shrinkage
 		private void ProcessMaterialNode(HtmlNode rootNode)
 		{
-			Regex regex = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?$");
+			Regex regex = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?(?:\s+)?$");
 
 			// TODO: Improve Readability
 			foreach (var rootChild in rootNode.ChildNodes[2].ChildNodes)
