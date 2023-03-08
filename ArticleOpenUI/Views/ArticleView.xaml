@@ -134,6 +134,13 @@
 					<DataGridTemplateColumn MinWidth="48" MaxWidth="48">
 						<DataGridTemplateColumn.CellTemplate>
 							<DataTemplate>
+								<Button Content="MLD" cal:Message.Attach="[Event Click]=[OpenMould($dataContext)]"></Button>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+					<DataGridTemplateColumn MinWidth="48" MaxWidth="48">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
 								<Button Content="Folder" cal:Message.Attach="[Event Click]=[OpenFolder($dataContext)]"></Button>
 							</DataTemplate>
 						</DataGridTemplateColumn.CellTemplate>

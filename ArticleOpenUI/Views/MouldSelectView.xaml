@@ -1,0 +1,17 @@
+﻿<Window x:Class="ArticleOpenUI.Views.MouldSelectView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ArticleOpenUI.Views"
+		xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+		xmlns:cal="http://caliburnmicro.com" 
+        mc:Ignorable="d"
+        Title="MouldSelectView" Height="180" Width="256">
+	<StackPanel Margin="8">
+		<ListBox ItemsSource="{Binding MouldList}"
+				 Width="200"/>
+		<Button Content="Select"
+				Width="64"/>
+	</StackPanel>
+</Window>
