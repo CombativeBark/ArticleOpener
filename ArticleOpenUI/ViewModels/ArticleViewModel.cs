@@ -82,7 +82,7 @@ namespace ArticleOpenUI.ViewModels
 
 		public ArticleViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
 		{
-			m_ArticleQueue = new();
+			m_ArticleQueue = new List<ArticleModel>();
 			m_Input = "";
 			m_EventAggregator = eventAggregator;
 			m_WindowManager = windowManager;
@@ -91,7 +91,7 @@ namespace ArticleOpenUI.ViewModels
 			OpenPlasticsFilter = true;
 			OpenInfoFilter = true;
 			OpenFoldersFilter = true;
-			ArticleList = new();
+			ArticleList = new ObservableCollection<ArticleModel>();
 
 #if (DEBUG)
 			m_Input = "302981V";

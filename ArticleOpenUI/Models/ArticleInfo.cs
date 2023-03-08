@@ -55,7 +55,6 @@ namespace ArticleOpenUI.Models
 
 			var divContent = doc.DocumentNode
 				.SelectSingleNode("//body/div[@class='page']/div[@class='main']/div[@class='content px-4']");
-
 			if (divContent == null)
 				throw new NodeNotFoundException($"Couldn't find parse web page for {Name}");
 

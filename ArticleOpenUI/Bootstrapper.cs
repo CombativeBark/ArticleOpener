@@ -44,7 +44,7 @@ namespace ArticleOpenUI
 		protected override void OnStartup(object sender, StartupEventArgs e)
 		{
 
-			DisplayRootViewForAsync<ArticleViewModel>();
+			DisplayRootViewForAsync<ShellViewModel>();
 		}
 
 	}

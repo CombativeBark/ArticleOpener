@@ -15,10 +15,17 @@ namespace ArticleOpenUI.ViewModels
 		private IEventAggregator m_EventAggregator;
 
 		public ObservableCollection<string> MouldList;
-		public MouldSelectViewModel(IEnumerable<string> mldList, IEventAggregator eventAggregator)
+		public MouldSelectViewModel(IEventAggregator eventAggregator)
 		{
-			MouldList = new ObservableCollection<string>(mldList);
+			MouldList = new ObservableCollection<string>();
 			m_EventAggregator = eventAggregator;
+		}
+
+		public void PopulateList(IEnumerable<string> files)
+		{
+			files.ToList()
+				.ForEach(file => MouldList.Add(file));
+			MouldList.Concat(files);
 		}
 	}
 }
