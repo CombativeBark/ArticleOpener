@@ -50,7 +50,10 @@ namespace ArticleOpenUI.Models
 		public void OpenMould()
 		{
 			var app = new TopSolid.Application();
-			var files = Directory.GetFiles(@$"{Path}\CAD");
+			var path = Path;
+			if (IsModOrVariant)
+				path += @$"\{Name}";
+			var files = Directory.GetFiles(@$"{path}\CAD");
 			var mldFiles = files.Where(x => x.EndsWith(".mld"));
 			if (!mldFiles.Any())
 				return;
