@@ -61,15 +61,13 @@ namespace ArticleOpenUI.Models
 			for (int i = 1; i < filteredList.Count; i++)
 			{
 				var currentNode = filteredList[i];
-				if (currentNode.Name == "table")
+				if (currentNode.Name != "h2")
 					continue;
 
 				var nextNodes = new List<HtmlNode>();
-				for (int j = 1; filteredList[i + j].Name == "table" ; j++)
+				for (int j = 1; i + j < filteredList.Count && filteredList[i + j].Name == "table"; j++)
 				{
 					nextNodes.Add(filteredList[i + j]);
-					if (i + j == filteredList.Count - 1)
-						break;
 				}
 
 				switch (currentNode.InnerText.ToLower())
@@ -176,6 +174,7 @@ namespace ArticleOpenUI.Models
 				break;
 			}
 		}
+		// TODO: Add functionality to parse multiple reported shrinkages
 		private void ProcessProjectNotes(HtmlNode rootNode)
 		{
 			var rawData = rootNode.SelectNodes(".//td")[1].InnerText;

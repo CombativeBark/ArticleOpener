@@ -90,7 +90,7 @@ namespace ArticleOpenUI.ViewModels
 			OpenPlasticsFilter = true;
 			OpenInfoFilter = true;
 			OpenFoldersFilter = true;
-			ArticleList = new();
+			ArticleList = new ObservableCollection<ArticleModel>();
 		}
 		public void TextBoxEvent(ActionExecutionContext context)
 		{
@@ -162,6 +162,7 @@ namespace ArticleOpenUI.ViewModels
 				MessageBox.Show("No articles to open");
 			}
 		}
+		// Double-click to clear input
 		public void ClearQueue()
 		{
 			m_ArticleQueue.Clear();
