@@ -3,6 +3,7 @@ using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -180,10 +181,12 @@ namespace ArticleOpenUI.ViewModels
 			m_ArticleQueue.Clear();
 			ArticleList.Clear();
 		}
-		public bool CanOpenMould(object? context)
+		public bool CanOpenMould(object context)
 		{
 			var item = context as ArticleModel;
 			if (item?.Type == ArticleType.Plastic)
+				return false;
+			if (!File.Exists(item.GetMouldPath()))
 				return false;
 			return true;
 		}

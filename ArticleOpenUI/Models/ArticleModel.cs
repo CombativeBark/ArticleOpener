@@ -47,18 +47,24 @@ namespace ArticleOpenUI.Models
 				Children = null;
 		}
 
-		public void OpenMould()
+		public string? GetMouldPath()
 		{
-			var app = new TopSolid.Application();
 			var path = Path;
 			if (IsModOrVariant)
 				path += @$"\{Name}";
 			var files = Directory.GetFiles(@$"{path}\CAD");
 			var mldFiles = files.Where(x => x.EndsWith(".mld"));
 			if (!mldFiles.Any())
-				return;
+				return null;
 
-			var mld = mldFiles.First();
+			// Only returns the first mould file, too bad!
+			return mldFiles.First();
+		}
+
+		public void OpenMould()
+		{
+			var app = new TopSolid.Application();
+			var mld = GetMouldPath();
 
 			if (File.Exists(mld))
 #if (DEBUG)
