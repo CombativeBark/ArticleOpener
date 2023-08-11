@@ -5,23 +5,28 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace ArticleOpenUI.Models
 {
 	public class ArticleInfo
 	{
-		public string Name { get; private set; } = "";
-		public ArticleType Type { get; private set; }
-		public bool IsModOrVariant { get; private set; } = false;
-		public string Url { get; private set; } = "";
-		public List<string>? Plastics { get; private set; } = null;
-		public string CAD { get; private set; } = "Unknown";
-		public string Customer { get; private set; } = "Unknown";
-		public string Description { get; private set; } = "Unknown";
-		public string Material { get; private set; } = "Unknown";
-		public string Shrinkage { get; private set; } = "";
-		public string Machine { get; private set; } = "Unknown";
+		public string Name { get; set; } = "";
+		public ArticleType Type { get; set; }
+		public bool IsModOrVariant { get; set; } = false;
+		public string Url { get; set; } = "";
+		public List<string>? Plastics { get; set; } = null;
+		public string CAD { get; set; } = "Unknown";
+		public string Customer { get; set; } = "Unknown";
+		public string Description { get; set; } = "Unknown";
+		public string Material { get; set; } = "Unknown";
+		public string Shrinkage { get; set; } = "";
+		public string Machine { get; set; } = "Unknown";
 
+		public ArticleInfo()
+		{
+			MessageBox.Show("Created without an article number!", "ArticleInfo", MessageBoxButton.OK, MessageBoxImage.Information);
+		}
 		public ArticleInfo(string name)
 		{
 			if (IsNameValid(name))
@@ -50,7 +55,6 @@ namespace ArticleOpenUI.Models
 
 			var divContent = doc.DocumentNode
 				.SelectSingleNode("//body/div[@class='page']/div[@class='main']/div[@class='content px-4']");
-
 			if (divContent == null)
 				throw new NodeNotFoundException($"Couldn't find parse web page for {Name}");
 

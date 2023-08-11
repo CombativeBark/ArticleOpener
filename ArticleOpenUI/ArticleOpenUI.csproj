@@ -10,6 +10,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <COMReference Include="TopSolid">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>23</VersionMinor>
+      <VersionMajor>6</VersionMajor>
+      <Guid>3e619d74-3b70-45a4-879b-8cf65ad46e94</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="4.0.212" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
   </ItemGroup>

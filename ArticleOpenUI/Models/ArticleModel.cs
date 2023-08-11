@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ArticleOpenUI.ViewModels;
+using Caliburn.Micro;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +11,7 @@ namespace ArticleOpenUI.Models
 	public class ArticleModel
 	{
 		public string Name { get; init; } = "";
-		public string Path { get; init; } = "";
+		public string Path { get; set; } = "";
 		public ArticleType Type { get; init; }
 		public string Url { get; init; } = "";
 		public string Cad { get; init; } = "";
@@ -44,25 +46,75 @@ namespace ArticleOpenUI.Models
 			else
 				Children = null;
 		}
+
+		public string? GetMouldPath()
+		{
+			var path = Path;
+			if (IsModOrVariant)
+				path += @$"\{Name}";
+			var files = Directory.GetFiles(@$"{path}\CAD");
+			var mldFiles = files.Where(x => x.EndsWith(".mld"));
+			if (!mldFiles.Any())
+				return null;
+
+			// Only returns the first mould file, too bad!
+			return mldFiles.First();
+		}
+
+		public void OpenMould()
+		{
+			var app = new TopSolid.Application();
+			var mld = GetMouldPath();
+
+			if (File.Exists(mld))
+#if (DEBUG)
+				app.Documents.Load(mld, ReadOnly: true);
+#else
+				app.Documents.Load(mld);
+#endif
+		}
+
+		/*
+private void StartTopSolid()
+{
+	const string keyPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\TOPSOLID\TopSolid\6.23";
+	const string keyName = "INSTALLDIR";
+	const string exePathRel = @"bin\top623.exe";
+
+	var installDir = (string)Registry.GetValue(keyPath, keyName, "");
+	if (installDir == null || !Directory.Exists(installDir))
+		throw new DirectoryNotFoundException();
+
+	var exePathFull = installDir + exePathRel;
+	Process.Start(exePathFull);
+}
+
+private bool TopSolidExists()
+{
+	Process[] processes = Process.GetProcessesByName("top623");
+	if (processes.Length > 0)
+		return true;
+	return false;
+}
+*/
 		public void OpenFolder()
 		{
-			if (Directory.Exists(Path))
-			{
-				ProcessStartInfo startInfo = new ProcessStartInfo()
-				{
-					Arguments = Path,
-					FileName = "explorer.exe"
-				};
+			if (!Directory.Exists(Path))
+				throw new DirectoryNotFoundException($"Directory for Article {Name} doesn't exist");
 
-				Process.Start(startInfo);
-			}
-			else
+			ProcessStartInfo startInfo = new ProcessStartInfo()
 			{
-				throw new Exception($"Error: Directory for Article {Name} doesn't exist");
-			}
+				Arguments = Path,
+				FileName = "explorer.exe"
+			};
+
+			Process.Start(startInfo);
 		}
 		public void OpenInfo()
 		{
+			if (Url == null || string.IsNullOrWhiteSpace(Url))
+				throw new ArgumentNullException(Url, $"URL for Article {Name} is missing.");
+
 			ProcessStartInfo startInfo = new()
 			{
 				FileName = Url,
@@ -84,8 +136,8 @@ namespace ArticleOpenUI.Models
 
 			var fullPath = basePath + @"\" + Name;
 
-			if (!Directory.Exists(fullPath))
-				throw new DirectoryNotFoundException($"Directory for {Name} doesn't exist.");
+			//if (!Directory.Exists(fullPath) || )
+			//	throw new DirectoryNotFoundException($"Directory for {Name} doesn't exist.");
 
 			if (IsModOrVariant)
 				return basePath;
