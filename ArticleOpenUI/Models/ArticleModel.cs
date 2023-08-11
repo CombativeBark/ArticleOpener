@@ -21,7 +21,7 @@ namespace ArticleOpenUI.Models
 		public string Shrinkage { get; init; } = "";
 		public string Machine { get; init; } = "";
 		public bool IsModOrVariant { get; private set; } = false;
-		public List<string>? Children { get; init; }
+		public List<ArticleInfo>? Children { get; init; }
 
 		public ArticleModel(ArticleInfo info)
 		{
@@ -38,7 +38,8 @@ namespace ArticleOpenUI.Models
 			Customer = info.Customer;
 			Description = Type == ArticleType.Plastic ? info.Description : "";
 			Material = Type == ArticleType.Plastic ? info.Material : "";
-			Shrinkage = info.Shrinkage;
+			if (info.Shrinkage.ContainsKey(Name))
+				Shrinkage = info.Shrinkage[Name];
 			Machine = info.Machine;
 
 			if (info.Plastics is not null && info.Plastics.Any())

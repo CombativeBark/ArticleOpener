@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Ink;
 
 namespace ArticleOpenUI.Models
 {
@@ -15,17 +16,18 @@ namespace ArticleOpenUI.Models
 		public ArticleType Type { get; set; }
 		public bool IsModOrVariant { get; set; } = false;
 		public string Url { get; set; } = "";
-		public List<string>? Plastics { get; set; } = null;
+		public List<ArticleInfo>? Plastics { get; set; } = null;
 		public string CAD { get; set; } = "Unknown";
 		public string Customer { get; set; } = "Unknown";
 		public string Description { get; set; } = "Unknown";
 		public string Material { get; set; } = "Unknown";
-		public string Shrinkage { get; set; } = "";
+		public Dictionary<string, string> Shrinkage { get; set; } = null;
 		public string Machine { get; set; } = "Unknown";
 
 		public ArticleInfo()
 		{
 			MessageBox.Show("Created without an article number!", "ArticleInfo", MessageBoxButton.OK, MessageBoxImage.Information);
+			Shrinkage = new Dictionary<string, string>();
 		}
 		public ArticleInfo(string name)
 		{
@@ -36,8 +38,10 @@ namespace ArticleOpenUI.Models
 
 			Type = ResolveType();
 			Url = GenerateUrl();
+			Shrinkage = new Dictionary<string, string>();
 
 			PullFromWeb();
+			TransferShrinkageToPlastics();
 		}
 
 		private void PullFromWeb()
@@ -173,7 +177,9 @@ namespace ArticleOpenUI.Models
 
 				var shrinkageCapture = regExResult.Groups["Shrinkage"];
 				if (shrinkageCapture.Success)
-					Shrinkage = shrinkageCapture.Value;
+					if (Shrinkage != null && 
+						!Shrinkage.ContainsKey(Name))
+						Shrinkage.Add(Name, shrinkageCapture.Value);
 
 				break;
 			}
@@ -183,36 +189,59 @@ namespace ArticleOpenUI.Models
 		{
 			var rawData = rootNode.SelectNodes(".//td")[1].InnerText;
 			var decodedData = WebUtility.HtmlDecode(rawData);
-			var regExResults = Regex.Match(decodedData, @"\d{6} (?<CAD>\w+) // (?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%)");
+			var regExResults = Regex.Matches(decodedData, @"(?:\d{6} (?<CAD>\w+) \// (?=(?:[Kk]rymp|\d{6}P))|(?<Plastic>(\d{6}P)) (?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%)|(?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%))");
 
-			if (!regExResults.Success ||
-				regExResults.Groups.Count < 1)
-				return;
+			foreach (Match result in regExResults)
+			{
+				if (!result.Success ||
+					result.Groups.Count < 1)
+					return;
 
-			var cadOperatorCapture = regExResults.Groups["CAD"];
-			if (cadOperatorCapture.Success &&
-				!cadOperatorCapture.Value.Equals("Andreas"))
-				CAD = cadOperatorCapture.Value;
+				
+				var cadOperatorCapture = result.Groups["CAD"];
+				if (cadOperatorCapture.Success &&
+					!cadOperatorCapture.Value.Equals("Andreas"))
+					CAD = cadOperatorCapture.Value;
 
-			var shrinkageCapture = regExResults.Groups["Shrinkage"];
-			if (shrinkageCapture.Success)
-				Shrinkage = shrinkageCapture.Value
-					.ToLower()
-					.Replace("krymp ", "");
+				var PartNameCapture = result.Groups["Plastic"];
+				var PartName = PartNameCapture.Value;
+
+				if (!PartNameCapture.Success)
+					PartName = Name;
+
+				var shrinkageCapture = result.Groups["Shrinkage"];
+				if (shrinkageCapture.Success)
+					if (Shrinkage != null && 
+						!Shrinkage.ContainsKey(PartName))
+						Shrinkage.Add(PartName, shrinkageCapture.Value.ToLower().Replace("krymp ", ""));
+			}
 		}
-		private List<string> GetPlasticsFromNode(HtmlNode rootNode)
+		private List<ArticleInfo> GetPlasticsFromNode(HtmlNode rootNode)
 		{
-			var output = new List<string>();
+			var output = new List<ArticleInfo>();
 
 			var tdNodes = rootNode.SelectNodes(".//td");
 			for (int i = 0; i < tdNodes?.Count; i++)
 			{
 				if (i % 3 == 0 && IsPlasticsNode(tdNodes[i]))
-					output.Add(tdNodes[i].InnerText);
+					output.Add(new ArticleInfo(tdNodes[i].InnerText));
 			}
 
 			return output;
 		}
+		private void TransferShrinkageToPlastics()
+		{
+			if (Plastics == null ||
+				!Plastics.Any())
+				return;
+
+			foreach (var plastic in Plastics)
+			{
+				if (Shrinkage.ContainsKey(plastic.Name))
+					plastic.Shrinkage.Add(plastic.Name, Shrinkage[plastic.Name]);
+			}
+		}
+
 		private bool IsPlasticsNode(HtmlNode node)
 		{
 			bool output = Regex.IsMatch(node.InnerText, @"^\d{6}P(?:-\d)?$");

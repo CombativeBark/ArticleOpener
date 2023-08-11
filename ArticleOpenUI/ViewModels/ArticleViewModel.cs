@@ -94,7 +94,7 @@ namespace ArticleOpenUI.ViewModels
 			OpenFoldersFilter = true;
 			ArticleList = new ObservableCollection<ArticleModel>();
 
-#if (DEBUG)
+#if (DEBUG && false)
 			m_Input = "302981V";
 
 			var testInfo = new ArticleInfo();
@@ -141,7 +141,7 @@ namespace ArticleOpenUI.ViewModels
 					{
 						article.Children.ForEach(x =>
 						{
-							var childArticle = ArticleFactory.CreateArticle(x);
+							var childArticle = new ArticleModel(x);
 							AddToQueue(childArticle);
 						});
 					}
