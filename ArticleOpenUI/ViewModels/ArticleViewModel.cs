@@ -185,9 +185,11 @@ namespace ArticleOpenUI.ViewModels
 		public bool CanOpenMould(object context)
 		{
 			var item = context as ArticleModel;
+			if (item == null)
+				return false;
 			if (item?.Type == ArticleType.Plastic)
 				return false;
-			if (!File.Exists(item.GetMouldPath()))
+			if (!File.Exists(item?.GetMouldPath()))
 				return false;
 			return true;
 		}
