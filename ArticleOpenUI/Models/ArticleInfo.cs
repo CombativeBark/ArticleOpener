@@ -6,7 +6,6 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Ink;
 
 namespace ArticleOpenUI.Models
 {
@@ -16,18 +15,17 @@ namespace ArticleOpenUI.Models
 		public ArticleType Type { get; set; }
 		public bool IsModOrVariant { get; set; } = false;
 		public string Url { get; set; } = "";
-		public List<ArticleInfo>? Plastics { get; set; } = null;
+		public List<ArticleInfo> Plastics { get; set; } = new List<ArticleInfo>();
 		public string CAD { get; set; } = "Unknown";
 		public string Customer { get; set; } = "Unknown";
 		public string Description { get; set; } = "Unknown";
 		public string Material { get; set; } = "Unknown";
-		public Dictionary<string, string> Shrinkage { get; set; } = null;
+		public Dictionary<string, string> Shrinkage { get; set; } = new Dictionary<string, string>();
 		public string Machine { get; set; } = "Unknown";
 
 		public ArticleInfo()
 		{
 			MessageBox.Show("Created without an article number!", "ArticleInfo", MessageBoxButton.OK, MessageBoxImage.Information);
-			Shrinkage = new Dictionary<string, string>();
 		}
 		public ArticleInfo(string name)
 		{
@@ -38,7 +36,6 @@ namespace ArticleOpenUI.Models
 
 			Type = ResolveType();
 			Url = GenerateUrl();
-			Shrinkage = new Dictionary<string, string>();
 
 			PullFromWeb();
 			TransferShrinkageToPlastics();
@@ -237,6 +234,10 @@ namespace ArticleOpenUI.Models
 
 			foreach (var plastic in Plastics)
 			{
+				if (plastic == null || 
+					plastic.Shrinkage == null) 
+					continue;
+
 				if (Shrinkage.ContainsKey(plastic.Name))
 					plastic.Shrinkage.Add(plastic.Name, Shrinkage[plastic.Name]);
 			}
