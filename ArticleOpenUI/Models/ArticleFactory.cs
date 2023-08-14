@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace ArticleOpenUI.Models
 {
@@ -12,6 +11,13 @@ namespace ArticleOpenUI.Models
 
 			if (info == null)
 				throw new ArgumentException($"Error: Can't process info for article {articleName}");
+
+			return new ArticleModel(info);
+		}
+		public static ArticleModel CreateArticle(ArticleInfo info)
+		{
+			if (info == null)
+				throw new ArgumentNullException();
 
 			return new ArticleModel(info);
 		}

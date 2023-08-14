@@ -141,8 +141,15 @@ namespace ArticleOpenUI.ViewModels
 					{
 						article.Children.ForEach(x =>
 						{
-							var childArticle = new ArticleModel(x);
-							AddToQueue(childArticle);
+							try
+							{
+								var plasticArticle = ArticleFactory.CreateArticle(x);
+								AddToQueue(plasticArticle);
+							}
+							catch(Exception e)
+							{
+								MessageBox.Show("Error: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+							}
 						});
 					}
 				}
