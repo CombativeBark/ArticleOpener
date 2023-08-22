@@ -174,7 +174,7 @@ namespace ArticleOpenUI.Models
 
 				var shrinkageCapture = regExResult.Groups["Shrinkage"];
 				if (shrinkageCapture.Success)
-					if (Shrinkage != null && 
+					if (Shrinkage is not null && 
 						!Shrinkage.ContainsKey(Name))
 						Shrinkage.Add(Name, shrinkageCapture.Value);
 
@@ -208,7 +208,7 @@ namespace ArticleOpenUI.Models
 
 				var shrinkageCapture = result.Groups["Shrinkage"];
 				if (shrinkageCapture.Success)
-					if (Shrinkage != null && 
+					if (Shrinkage is not null && 
 						!Shrinkage.ContainsKey(PartName))
 						Shrinkage.Add(PartName, shrinkageCapture.Value.ToLower().Replace("krymp ", ""));
 			}
@@ -238,8 +238,10 @@ namespace ArticleOpenUI.Models
 					plastic.Shrinkage == null) 
 					continue;
 
-				if (Shrinkage.ContainsKey(plastic.Name))
+				if (!Shrinkage.ContainsKey(plastic.Name))
 					plastic.Shrinkage.Add(plastic.Name, Shrinkage[plastic.Name]);
+				else
+					plastic.Shrinkage[plastic.Name] = Shrinkage[plastic.Name];
 			}
 		}
 
