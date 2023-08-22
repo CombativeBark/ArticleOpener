@@ -75,29 +75,6 @@ namespace ArticleOpenUI.Models
 #endif
 		}
 
-		/*
-private void StartTopSolid()
-{
-	const string keyPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\TOPSOLID\TopSolid\6.23";
-	const string keyName = "INSTALLDIR";
-	const string exePathRel = @"bin\top623.exe";
-
-	var installDir = (string)Registry.GetValue(keyPath, keyName, "");
-	if (installDir == null || !Directory.Exists(installDir))
-		throw new DirectoryNotFoundException();
-
-	var exePathFull = installDir + exePathRel;
-	Process.Start(exePathFull);
-}
-
-private bool TopSolidExists()
-{
-	Process[] processes = Process.GetProcessesByName("top623");
-	if (processes.Length > 0)
-		return true;
-	return false;
-}
-*/
 		public void OpenFolder()
 		{
 			if (!Directory.Exists(Path))
@@ -136,9 +113,6 @@ private bool TopSolidExists()
 			}
 
 			var fullPath = basePath + @"\" + Name;
-
-			//if (!Directory.Exists(fullPath) || )
-			//	throw new DirectoryNotFoundException($"Directory for {Name} doesn't exist.");
 
 			if (IsModOrVariant)
 				return basePath;

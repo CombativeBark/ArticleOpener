@@ -181,7 +181,6 @@ namespace ArticleOpenUI.Models
 				break;
 			}
 		}
-		// TODO: Add functionality to parse multiple reported shrinkages
 		private void ProcessProjectNotes(HtmlNode rootNode)
 		{
 			var rawData = rootNode.SelectNodes(".//td")[1].InnerText;
