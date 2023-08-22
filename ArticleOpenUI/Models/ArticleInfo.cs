@@ -228,20 +228,21 @@ namespace ArticleOpenUI.Models
 		}
 		private void TransferShrinkageToPlastics()
 		{
-			if (Plastics == null ||
+			if (Plastics is null ||
 				!Plastics.Any())
 				return;
 
 			foreach (var plastic in Plastics)
 			{
-				if (plastic == null || 
-					plastic.Shrinkage == null) 
+				if (plastic is null)
+					continue;
+				if (!Shrinkage.ContainsKey(plastic.Name))
 					continue;
 
-				if (!Shrinkage.ContainsKey(plastic.Name))
-					plastic.Shrinkage.Add(plastic.Name, Shrinkage[plastic.Name]);
-				else
+				if (plastic.Shrinkage.ContainsKey(plastic.Name))
 					plastic.Shrinkage[plastic.Name] = Shrinkage[plastic.Name];
+				else
+					plastic.Shrinkage.Add(plastic.Name, Shrinkage[plastic.Name]);
 			}
 		}
 
