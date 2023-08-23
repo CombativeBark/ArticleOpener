@@ -12,6 +12,7 @@ namespace ArticleOpenUI.Models
 	{
 		public string Name { get; init; } = "";
 		public string Path { get; set; } = "";
+		public string MouldFile { get; set; } = "";
 		public ArticleType Type { get; init; }
 		public string Url { get; init; } = "";
 		public string Cad { get; init; } = "";
@@ -21,6 +22,7 @@ namespace ArticleOpenUI.Models
 		public string Shrinkage { get; init; } = "";
 		public string Machine { get; init; } = "";
 		public bool IsModOrVariant { get; private set; } = false;
+		public List<string> MouldFilePaths { get; set; } = new List<string>();
 		public List<ArticleInfo>? Children { get; init; }
 
 		public ArticleModel(ArticleInfo info)
@@ -41,6 +43,7 @@ namespace ArticleOpenUI.Models
 			if (info.Shrinkage.ContainsKey(Name))
 				Shrinkage = info.Shrinkage[Name];
 			Machine = info.Machine;
+			GetMouldPaths();
 
 			if (info.Plastics is not null && info.Plastics.Any())
 				Children = info.Plastics;
@@ -48,30 +51,30 @@ namespace ArticleOpenUI.Models
 				Children = null;
 		}
 
-		public string? GetMouldPath()
+		public void GetMouldPaths()
 		{
+			if (Type == ArticleType.Plastic)
+				return;
+
+			MouldFilePaths.Clear();
+			MouldFile = "";
+
 			var path = Path;
 			if (IsModOrVariant)
 				path += @$"\{Name}";
 			var files = Directory.GetFiles(@$"{path}\CAD");
 			var mldFiles = files.Where(x => x.EndsWith(".mld"));
-			if (!mldFiles.Any())
-				return null;
-
-			// Only returns the first mould file, too bad!
-			return mldFiles.First();
+			MouldFilePaths = mldFiles.ToList();
 		}
 
 		public void OpenMould()
 		{
 			var app = new TopSolid.Application();
-			var mld = GetMouldPath();
-
-			if (File.Exists(mld))
-#if (DEBUG)
-				app.Documents.Load(mld, ReadOnly: true);
+			if (File.Exists(MouldFile))
+#if DEBUG
+				app.Documents.Load(MouldFile, ReadOnly: true);
 #else
-				app.Documents.Load(mld);
+				app.Documents.Load(MouldFile);
 #endif
 		}
 

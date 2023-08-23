@@ -1,31 +1,53 @@
-﻿using Caliburn.Micro;
-using System;
-using System.CodeDom;
+﻿using ArticleOpenUI.Models;
+using Caliburn.Micro;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace ArticleOpenUI.ViewModels
 {
 	class MouldSelectViewModel : Screen
 	{
+		private Dictionary<string, string> m_MouldHashes;
 		private IEventAggregator m_EventAggregator;
+		private ArticleModel m_ReferencedArticle;
 
-		public ObservableCollection<string> MouldList;
-		public MouldSelectViewModel(IEventAggregator eventAggregator)
+		public string Name { get; init; }
+		public ObservableCollection<string> MouldFiles { get; private set; }
+		public string SelectedFile { get; set; }
+
+		public MouldSelectViewModel(IEventAggregator eventAggregator, ArticleModel article)
 		{
-			MouldList = new ObservableCollection<string>();
 			m_EventAggregator = eventAggregator;
+			m_MouldHashes= new Dictionary<string, string>();
+			MouldFiles = new ObservableCollection<string>();
+			SelectedFile = string.Empty;
+
+			m_ReferencedArticle = article;
+
+			Name = m_ReferencedArticle.Name;
+
+			PopulateList(m_ReferencedArticle.MouldFilePaths);
 		}
 
-		public void PopulateList(IEnumerable<string> files)
+		public void SelectFile()
 		{
-			files.ToList()
-				.ForEach(file => MouldList.Add(file));
-			MouldList.Concat(files);
+			if (SelectedFile != string.Empty)
+				m_ReferencedArticle.MouldFile = m_MouldHashes[SelectedFile];
+			TryCloseAsync();
+		}
+		
+		private void PopulateList(List<string> files)
+		{
+			files.ForEach(file => {
+				var filename = FormatFilename(file);
+				m_MouldHashes.Add(filename, file);
+				MouldFiles.Add(filename);
+				});
+		}
+		private string FormatFilename(string filename)
+		{
+			return filename.Split("\\").Last();
 		}
 	}
 }

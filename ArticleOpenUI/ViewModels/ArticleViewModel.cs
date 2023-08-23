@@ -3,7 +3,6 @@ using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -94,16 +93,8 @@ namespace ArticleOpenUI.ViewModels
 			OpenFoldersFilter = true;
 			ArticleList = new ObservableCollection<ArticleModel>();
 
-#if (DEBUG && false)
+#if DEBUG
 			m_Input = "302981V";
-
-			var testInfo = new ArticleInfo();
-			testInfo.Name = "Test";
-			testInfo.Type = ArticleType.Tool;
-			var testArticle = new ArticleModel(testInfo);
-			testArticle.Path = @"C:\dev\Testing";
-			m_ArticleQueue.Add(testArticle);
-			ArticleList.Add(testArticle);
 #endif
 		}
 		public void TextBoxEvent(ActionExecutionContext context)
@@ -194,17 +185,26 @@ namespace ArticleOpenUI.ViewModels
 			var item = context as ArticleModel;
 			if (item == null)
 				return false;
-			if (item?.Type == ArticleType.Plastic)
+			if (item.Type == ArticleType.Plastic)
 				return false;
-			if (!File.Exists(item?.GetMouldPath()))
+			if (!item.MouldFilePaths.Any())
 				return false;
 			return true;
 		}
-		public void OpenMould(object? context)
+		public async void OpenMould(object? context)
 		{
 			var article = context as ArticleModel;
-			if (article == null) return;
+			if (article == null)
+				return;
 
+			article.GetMouldPaths();
+			if (article.MouldFilePaths.Count > 1)
+				await m_WindowManager.ShowDialogAsync(new MouldSelectViewModel(m_EventAggregator, article));
+			else
+				article.MouldFile = article.MouldFilePaths.First();
+
+			if (string.IsNullOrEmpty(article.MouldFile))
+				return;
 			try
 			{
 				article.OpenMould();

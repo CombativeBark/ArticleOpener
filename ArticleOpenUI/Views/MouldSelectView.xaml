@@ -7,11 +7,13 @@
 		xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
 		xmlns:cal="http://caliburnmicro.com" 
         mc:Ignorable="d"
-        Title="MouldSelectView" Height="180" Width="256">
+        Title="MouldSelectView" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight">
 	<StackPanel Margin="8">
-		<ListBox ItemsSource="{Binding MouldList}"
-				 Width="200"/>
-		<Button Content="Select"
-				Width="64"/>
+		<TextBlock Text="{Binding Name}" Margin="4" HorizontalAlignment="Center" FontSize="16" FontWeight="Bold"/>
+		<ListBox x:Name="MouldFileList" ItemsSource="{Binding MouldFiles}"
+				 SelectionMode="Extended" SelectedItem="{Binding SelectedFile, Mode=TwoWay}"
+				 FontSize="14" d:ItemsSource="{d:SampleData ItemCount=5}" VerticalContentAlignment="Stretch"/>
+		<Button x:Name="SelectFile" Content="Select"
+				Width="80" Margin="4" VerticalAlignment="Bottom"/>
 	</StackPanel>
 </Window>
