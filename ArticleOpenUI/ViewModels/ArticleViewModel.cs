@@ -29,9 +29,9 @@ namespace ArticleOpenUI.ViewModels
 		public string Input
 		{
 			get => m_Input;
-			set
-			{
-				m_Input = value;
+			set 
+			{ 
+				m_Input = value; 
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
@@ -39,18 +39,15 @@ namespace ArticleOpenUI.ViewModels
 		{
 			m_EventAggregator = eventAggregator;
 			m_WindowManager = windowManager;
-
+#if DEBUG
+			m_Input = "302981V 304092";
+#else
 			m_Input = "";
-			OpenToolsFilter = true;
-			OpenPlasticsFilter = true;
-			OpenInfoFilter = true;
-			OpenFoldersFilter = true;
+#endif
+
 			Items.Add(new ArticleListViewModel(windowManager, eventAggregator));
 			SelectedArticleList = Items.First();
 
-#if DEBUG
-			m_Input = "302981V";
-#endif
 		}
 		public void TextBoxEvent(ActionExecutionContext context)
 		{
@@ -80,17 +77,17 @@ namespace ArticleOpenUI.ViewModels
 			{
 				try
 				{
-					var article = ArticleFactory.CreateArticle(articleNumber);
+					var newArticle = ArticleFactory.CreateArticle(articleNumber);
 
-					AddToQueue(article);
-					if (article.Children != null && article.Children.Any())
+					AddToQueue(newArticle);
+					if (newArticle.Children != null && newArticle.Children.Any())
 					{
-						article.Children.ForEach(x =>
+						newArticle.Children.ForEach(x =>
 						{
 							try
 							{
-								var plasticArticle = ArticleFactory.CreateArticle(x);
-								AddToQueue(plasticArticle);
+								var newPlasticArticle = ArticleFactory.CreateArticle(x);
+								AddToQueue(newPlasticArticle);
 							}
 							catch (Exception e)
 							{
