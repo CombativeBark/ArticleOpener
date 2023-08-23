@@ -41,61 +41,9 @@
 					 Grid.Row="0" Grid.Column="1"
 					 cal:Message.Attach="[Event KeyDown] = [Action TextBoxEvent($executionContext)]" />
 			<Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
-					MinWidth="64" Margin="2" />
+					MinWidth="80" Margin="2" />
 			<Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="3"
 					MinWidth="64" Margin="2" />
-			<Button x:Name="OpenArticlesInQueue" Content="Open" Grid.Column="4"
-					MinWidth="96" MaxWidth="128" HorizontalAlignment="Right"
-					Margin="2" />
-
-			<!--Row 1-->
-			<Grid Grid.Column="2" Grid.ColumnSpan="3"
-				  Grid.Row="1">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="1*"/>
-					<ColumnDefinition Width="8"/>
-					<ColumnDefinition Width="1*"/>
-				</Grid.ColumnDefinitions>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="2"/>
-					<RowDefinition Height="*"/>
-					<RowDefinition Height="*"/>
-					<RowDefinition Height="*"/>
-					<RowDefinition Height="2"/>
-				</Grid.RowDefinitions>
-
-				<!-- FILTER BOXES  -->
-				
-				<!--Row 1-->
-				<TextBlock Text="Type:" 
-						   Grid.Row="1"/>
-
-				<!--Row 2-->
-				<CheckBox IsChecked="{Binding Path=OpenToolsFilter, Mode=TwoWay}" Content="Tools"
-						  Grid.Row="2"/>
-				
-				<!--Row 3-->
-				<CheckBox IsChecked="{Binding Path=OpenPlasticsFilter, Mode=TwoWay}" Content="Parts"
-						  Grid.Row="3"/>
-				
-				<!--Column 2-->
-
-				<!--Row 1-->
-				<TextBlock Text="Open:" 
-						   Grid.Column="2"
-						   Grid.Row="1"/>
-
-				<!--Row 2-->
-				<CheckBox IsChecked="{Binding Path=OpenFoldersFilter, Mode=TwoWay}" Content="Folders"
-						  Grid.Column="2"
-						  Grid.Row="2"/>
-				
-				<!--Row 3-->
-				<CheckBox IsChecked="{Binding Path=OpenInfoFilter, Mode=TwoWay}" Content="Info"
-						  Grid.Column="2"
-						  Grid.Row="3"/>
-				
-			</Grid>
 		</Grid>
 
 		<!--Body-->

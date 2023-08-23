@@ -16,10 +16,6 @@ namespace ArticleOpenUI.ViewModels
 		private IWindowManager m_WindowManager;
 		private ArticleListViewModel m_SelectedArticleList;
 		private string m_Input;
-		private bool m_OpenToolsFilter;
-		private bool m_OpenPlasticsFilter;
-		private bool m_OpenInfoFilter;
-		private bool m_OpenFoldersFilter;
 
 		public ArticleListViewModel SelectedArticleList
 		{
@@ -32,62 +28,13 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public string Input
 		{
-			get { return m_Input; }
+			get => m_Input;
 			set
 			{
 				m_Input = value;
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
-		public bool OpenToolsFilter
-		{
-			get
-			{
-				return m_OpenToolsFilter;
-			}
-			set
-			{
-				m_OpenToolsFilter = value;
-				NotifyOfPropertyChange(() => OpenToolsFilter);
-			}
-		}
-		public bool OpenPlasticsFilter
-		{
-			get
-			{
-				return m_OpenPlasticsFilter;
-			}
-			set
-			{
-				m_OpenPlasticsFilter = value;
-				NotifyOfPropertyChange(() => OpenPlasticsFilter);
-			}
-		}
-		public bool OpenInfoFilter
-		{
-			get
-			{
-				return m_OpenInfoFilter;
-			}
-			set
-			{
-				m_OpenInfoFilter = value;
-				NotifyOfPropertyChange(() => OpenInfoFilter);
-			}
-		}
-		public bool OpenFoldersFilter
-		{
-			get
-			{
-				return m_OpenFoldersFilter;
-			}
-			set
-			{
-				m_OpenFoldersFilter = value;
-				NotifyOfPropertyChange(() => OpenFoldersFilter);
-			}
-		}
-
 		public ArticleViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
 		{
 			m_EventAggregator = eventAggregator;
@@ -163,51 +110,10 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 		}
-		public void OpenArticlesInQueue()
-		{
-			if (OpenArticles != null &&
-				SelectedArticleList.Articles.Count > 0)
-			{
-				try
-				{
-					OpenArticles();
-				}
-				catch (Exception e)
-				{
-					MessageBox.Show(e.Message, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-				}
-			}
-			else
-			{
-				MessageBox.Show("No articles to open");
-			}
-		}
-		// Double-click to clear input
+		// TODO: Double-click to clear input
 		public void ClearQueue()
 		{
 			SelectedArticleList.Articles.Clear();
-		}
-		private void OpenArticles()
-		{
-			foreach (var article in SelectedArticleList.Articles)
-			{
-
-				if ((!OpenToolsFilter && article.Type == ArticleType.Tool) ||
-				(!OpenPlasticsFilter && article.Type == ArticleType.Plastic))
-					return;
-
-				if (OpenFoldersFilter)
-				{
-					article.OpenFolder();
-				}
-
-				if (OpenInfoFilter)
-				{
-					article.OpenInfo();
-					Thread.Sleep(100);
-				}
-
-			};
 		}
 		private void AddToQueue(ArticleModel article)
 		{
