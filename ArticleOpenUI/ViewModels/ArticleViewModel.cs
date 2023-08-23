@@ -10,18 +10,26 @@ using System.Windows.Input;
 
 namespace ArticleOpenUI.ViewModels
 {
-	class ArticleViewModel : Screen
+	class ArticleViewModel : Conductor<ArticleListViewModel>.Collection.OneActive
 	{
-		private List<ArticleModel> m_ArticleQueue;
+		private IEventAggregator m_EventAggregator;
+		private IWindowManager m_WindowManager;
+		private ArticleListViewModel m_SelectedArticleList;
 		private string m_Input;
 		private bool m_OpenToolsFilter;
 		private bool m_OpenPlasticsFilter;
 		private bool m_OpenInfoFilter;
 		private bool m_OpenFoldersFilter;
-		private IEventAggregator m_EventAggregator;
-		private IWindowManager m_WindowManager;
 
-		public ObservableCollection<ArticleModel> ArticleList { get; private set; }
+		public ArticleListViewModel SelectedArticleList
+		{
+			get => m_SelectedArticleList;
+			set
+			{
+				m_SelectedArticleList = value;
+				NotifyOfPropertyChange(() => SelectedArticleList);
+			}
+		}
 		public string Input
 		{
 			get { return m_Input; }
@@ -82,16 +90,16 @@ namespace ArticleOpenUI.ViewModels
 
 		public ArticleViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
 		{
-			m_ArticleQueue = new List<ArticleModel>();
-			m_Input = "";
 			m_EventAggregator = eventAggregator;
 			m_WindowManager = windowManager;
 
+			m_Input = "";
 			OpenToolsFilter = true;
 			OpenPlasticsFilter = true;
 			OpenInfoFilter = true;
 			OpenFoldersFilter = true;
-			ArticleList = new ObservableCollection<ArticleModel>();
+			Items.Add(new ArticleListViewModel(windowManager, eventAggregator));
+			SelectedArticleList = Items.First();
 
 #if DEBUG
 			m_Input = "302981V";
@@ -137,7 +145,7 @@ namespace ArticleOpenUI.ViewModels
 								var plasticArticle = ArticleFactory.CreateArticle(x);
 								AddToQueue(plasticArticle);
 							}
-							catch(Exception e)
+							catch (Exception e)
 							{
 								MessageBox.Show("Error: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 							}
@@ -157,8 +165,8 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void OpenArticlesInQueue()
 		{
-			if (m_ArticleQueue != null &&
-				m_ArticleQueue.Count > 0)
+			if (OpenArticles != null &&
+				SelectedArticleList.Articles.Count > 0)
 			{
 				try
 				{
@@ -177,85 +185,11 @@ namespace ArticleOpenUI.ViewModels
 		// Double-click to clear input
 		public void ClearQueue()
 		{
-			m_ArticleQueue.Clear();
-			ArticleList.Clear();
+			SelectedArticleList.Articles.Clear();
 		}
-		public bool CanOpenMould(object context)
-		{
-			var item = context as ArticleModel;
-			if (item == null)
-				return false;
-			if (item.Type == ArticleType.Plastic)
-				return false;
-			if (!item.MouldFilePaths.Any())
-				return false;
-			return true;
-		}
-		public async void OpenMould(object? context)
-		{
-			var article = context as ArticleModel;
-			if (article == null)
-				return;
-
-			article.GetMouldPaths();
-			if (article.MouldFilePaths.Count > 1)
-				await m_WindowManager.ShowDialogAsync(new MouldSelectViewModel(m_EventAggregator, article));
-			else
-				article.MouldFile = article.MouldFilePaths.First();
-
-			if (string.IsNullOrEmpty(article.MouldFile))
-				return;
-			try
-			{
-				article.OpenMould();
-			}
-			catch (Exception e)
-			{
-				MessageBox.Show($"{e.Message}\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
-		}
-		public void OpenFolder(object? context)
-		{
-			var article = context as ArticleModel;
-			if (article == null) return;
-
-			try
-			{
-				article.OpenFolder();
-			}
-			catch (Exception e)
-			{
-				MessageBox.Show($"{e.Message}\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
-		}
-		public void OpenInfo(object? context)
-		{
-			var article = context as ArticleModel;
-			if (article == null) return;
-
-			try
-			{
-				article.OpenInfo();
-			}
-			catch (Exception e)
-			{
-				MessageBox.Show($"{e.Message}\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
-		}
-		public void RemoveFromQueue(object? context)
-		{
-			var item = context as ArticleModel;
-
-			if (item == null)
-				return;
-
-			m_ArticleQueue.Remove(item);
-			ArticleList.Remove(item);
-		}
-
 		private void OpenArticles()
 		{
-			m_ArticleQueue.ForEach(article =>
+			foreach (var article in SelectedArticleList.Articles)
 			{
 
 				if ((!OpenToolsFilter && article.Type == ArticleType.Tool) ||
@@ -273,19 +207,18 @@ namespace ArticleOpenUI.ViewModels
 					Thread.Sleep(100);
 				}
 
-			});
+			};
 		}
 		private void AddToQueue(ArticleModel article)
 		{
 			if (!IsInQueue(article.Name))
 			{
-				m_ArticleQueue.Add(article);
-				ArticleList.Add(article);
+				SelectedArticleList.Articles.Add(article);
 			}
 		}
 		private bool IsInQueue(string inputArticle)
 		{
-			foreach (var article in m_ArticleQueue)
+			foreach (var article in SelectedArticleList.Articles)
 			{
 				if (article.Name.Equals(inputArticle))
 					return true;
@@ -305,6 +238,22 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 			return result;
+		}
+		public void CloseTab(object sender)
+		{
+			var context = sender as ArticleListViewModel;
+			if (context == null)
+				return;
+
+			Items.Remove(context);
+			if (Items.Count == 0)
+				CreateNewTab();
+		}
+		public void CreateNewTab()
+		{
+			var newTab = new ArticleListViewModel(m_WindowManager, m_EventAggregator);
+			Items.Add(newTab);
+			SelectedArticleList = newTab;
 		}
 	}
 }
