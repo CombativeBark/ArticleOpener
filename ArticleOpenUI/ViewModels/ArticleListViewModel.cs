@@ -15,6 +15,7 @@ namespace ArticleOpenUI.ViewModels
 		private IEventAggregator m_EventAggregator;
 
 		public ObservableCollection<ArticleModel> Articles { get; private set; } = new ObservableCollection<ArticleModel>();
+		public bool IsPinned = false;
 
 		public ArticleListViewModel(IWindowManager windowManager, IEventAggregator eventAggregator)
 		{

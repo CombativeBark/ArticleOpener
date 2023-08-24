@@ -64,8 +64,22 @@
 						Grid.Column="2" Padding="0">
 				<TabControl.ItemTemplate>
 					<DataTemplate>
-						<StackPanel Orientation="Horizontal">
-							<TextBlock Text="{Binding DisplayName}"/>
+						<StackPanel Tag="{Binding DataContext, ElementName=Items}" Orientation="Horizontal">
+							<StackPanel.ContextMenu>
+								<ContextMenu cal:Action.TargetWithoutContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+									<MenuItem Header="New Tab"
+											  cal:Message.Attach="[Event Click]=[Action CreateNewTab()]"/>
+									<MenuItem Header="Pin"
+											  cal:Message.Attach="[Event Click]=[Action PinTab($dataContext, $source)]"/>
+									<MenuItem Header="Rename"
+											  cal:Message.Attach="[Event Click]=[Action RenameTab($source)]"/>
+									<MenuItem Header="Close"
+											  cal:Message.Attach="[Event Click]=[Action CloseTab($dataContext)]"/>
+								</ContextMenu>
+							</StackPanel.ContextMenu>
+							<TextBlock Name="TabLabel"  Visibility="Visible" Text="{Binding DisplayName}"/>
+							<TextBox Name="TabLabelEdit" Visibility="Collapsed" Text="{Binding DisplayName}"
+									 cal:Message.Attach="[Event KeyDown]=[Action RenameTabFinalize($executionContext)]"/>
 							<Button Content="X" x:Name="CloseTab" FontSize="10"
 									Margin="4 0 0 0" Width="16" Height="16" 
 									BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"

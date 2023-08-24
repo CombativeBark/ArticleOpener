@@ -2,10 +2,9 @@
 using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ArticleOpenUI.ViewModels
@@ -14,12 +13,23 @@ namespace ArticleOpenUI.ViewModels
 	{
 		private IEventAggregator m_EventAggregator;
 		private IWindowManager m_WindowManager;
-		private ArticleListViewModel m_SelectedArticleList;
+		private ArticleListViewModel? m_SelectedArticleList;
 		private string m_Input;
+		private int m_TabCounter;
+		private TextBlock? m_RenameTextBlock;
+		private TextBox? m_RenameTextBox;
 
 		public ArticleListViewModel SelectedArticleList
 		{
-			get => m_SelectedArticleList;
+			get
+			{
+				if (m_SelectedArticleList == null)
+				{
+					CreateNewTab();
+					m_SelectedArticleList = Items.First();
+				}
+				return m_SelectedArticleList;
+			}
 			set
 			{
 				m_SelectedArticleList = value;
@@ -39,16 +49,15 @@ namespace ArticleOpenUI.ViewModels
 		{
 			m_EventAggregator = eventAggregator;
 			m_WindowManager = windowManager;
+
+			m_TabCounter = 0;
 #if DEBUG
-			m_Input = "302981V 304092";
+			m_Input = "302981V 304092V";
 #else
 			m_Input = "";
 #endif
-
-			Items.Add(new ArticleListViewModel(windowManager, eventAggregator));
-			SelectedArticleList = Items.First();
-
 		}
+
 		public void TextBoxEvent(ActionExecutionContext context)
 		{
 			var keyArgs = context.EventArgs as KeyEventArgs;
@@ -142,21 +151,83 @@ namespace ArticleOpenUI.ViewModels
 			}
 			return result;
 		}
-		public void CloseTab(object sender)
+		public void PinTab(object dataContext, object source)
 		{
-			var context = sender as ArticleListViewModel;
-			if (context == null)
+			var context = dataContext as ArticleListViewModel;
+			var sourceContext = source as MenuItem;
+			if (context == null || sourceContext == null) 
 				return;
 
-			Items.Remove(context);
-			if (Items.Count == 0)
-				CreateNewTab();
+			context.IsPinned = !context.IsPinned;
+			if (context.IsPinned)
+				sourceContext.Header = "Unpin";
+			else
+				sourceContext.Header = "Pin";
 		}
 		public void CreateNewTab()
 		{
 			var newTab = new ArticleListViewModel(m_WindowManager, m_EventAggregator);
+
+			if (Items.Count == 0)
+				m_TabCounter = 0;
+			newTab.DisplayName = $"Tab {++m_TabCounter}";
+
 			Items.Add(newTab);
 			SelectedArticleList = newTab;
+		}
+		public void CloseTab(object dataContext)
+		{
+			var context = dataContext as ArticleListViewModel;
+			if (context == null)
+				return;
+			if (context.IsPinned)
+			{
+				var result = MessageBox.Show($"Are you sure you would like to close '{context.DisplayName}'",
+											 $"Close {context.DisplayName}", 
+											 MessageBoxButton.YesNo, 
+											 MessageBoxImage.Question);
+				if (result == MessageBoxResult.No)
+					return;
+			}
+
+			Items.Remove(context);
+			if (Items.Count == 0) 
+				CreateNewTab();
+		}
+		public void RenameTab(object source)
+		{
+			var context = source as FrameworkElement;
+			if (context == null) 
+				return;
+
+			var contextMenu = (ContextMenu)context.Parent;
+			var stackPanel = contextMenu?.PlacementTarget as StackPanel;
+			if (contextMenu == null || stackPanel == null)
+				return;
+
+			m_RenameTextBlock = (TextBlock)stackPanel.Children[0];
+			m_RenameTextBox = (TextBox)stackPanel.Children[1];
+			if (m_RenameTextBlock == null || m_RenameTextBox == null)
+				throw new ArgumentNullException();
+
+			m_RenameTextBlock.Visibility = Visibility.Collapsed;
+			m_RenameTextBox.Visibility = Visibility.Visible;
+			m_RenameTextBox.Focus();
+			m_RenameTextBox.SelectAll();
+		}
+		public void RenameTabFinalize(ActionExecutionContext executionContext)
+		{
+			var keyArgs = executionContext.EventArgs as KeyEventArgs;
+			if (keyArgs == null)
+				return;
+			if (keyArgs.Key != Key.Enter && 
+				keyArgs.Key != Key.Escape)
+				return;
+
+			if (m_RenameTextBlock == null || m_RenameTextBox == null)
+				throw new ArgumentNullException();
+			m_RenameTextBlock.Visibility = Visibility.Visible;
+			m_RenameTextBox.Visibility = Visibility.Collapsed;
 		}
 	}
 }
