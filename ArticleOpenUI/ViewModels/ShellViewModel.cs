@@ -13,7 +13,6 @@ namespace ArticleOpenUI.ViewModels
 		private ArticleViewModel m_ArticleViewModel;
 		public ShellViewModel(ArticleViewModel articleViewModel)
 		{
-			DisplayName = "Article Opener 1.3.0";
 			m_ArticleViewModel = articleViewModel;
 			ActivateItemAsync(m_ArticleViewModel);
 		}
