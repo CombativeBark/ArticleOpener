@@ -8,17 +8,15 @@ namespace ArticleOpenUI.ViewModels
 {
 	class MouldSelectViewModel : Screen
 	{
-		private Dictionary<string, string> m_MouldHashes;
-		private IEventAggregator m_EventAggregator;
-		private ArticleModel m_ReferencedArticle;
+		private readonly Dictionary<string, string> m_MouldHashes;
+		private readonly ArticleModel m_ReferencedArticle;
 
 		public string Name { get; init; }
 		public ObservableCollection<string> MouldFiles { get; private set; }
 		public string SelectedFile { get; set; }
 
-		public MouldSelectViewModel(IEventAggregator eventAggregator, ArticleModel article)
+		public MouldSelectViewModel(ArticleModel article)
 		{
-			m_EventAggregator = eventAggregator;
 			m_MouldHashes= new Dictionary<string, string>();
 			MouldFiles = new ObservableCollection<string>();
 			SelectedFile = string.Empty;

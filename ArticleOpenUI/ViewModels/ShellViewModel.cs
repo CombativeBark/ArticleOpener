@@ -10,7 +10,7 @@ namespace ArticleOpenUI.ViewModels
 {
 	class ShellViewModel : Conductor<object>
 	{
-		private ArticleViewModel m_ArticleViewModel;
+		private readonly ArticleViewModel m_ArticleViewModel;
 		public ShellViewModel(ArticleViewModel articleViewModel)
 		{
 			m_ArticleViewModel = articleViewModel;

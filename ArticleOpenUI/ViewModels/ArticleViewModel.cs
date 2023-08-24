@@ -11,8 +11,8 @@ namespace ArticleOpenUI.ViewModels
 {
 	class ArticleViewModel : Conductor<ArticleListViewModel>.Collection.OneActive
 	{
-		private IEventAggregator m_EventAggregator;
-		private IWindowManager m_WindowManager;
+		private readonly IEventAggregator m_EventAggregator;
+		private readonly IWindowManager m_WindowManager;
 		private ArticleListViewModel? m_SelectedArticleList;
 		private string m_Input;
 		private int m_TabCounter;
@@ -60,9 +60,8 @@ namespace ArticleOpenUI.ViewModels
 
 		public void TextBoxEvent(ActionExecutionContext context)
 		{
-			var keyArgs = context.EventArgs as KeyEventArgs;
-
-			if (keyArgs == null || string.IsNullOrWhiteSpace(Input))
+			if (context.EventArgs is not KeyEventArgs keyArgs || 
+				string.IsNullOrWhiteSpace(Input))
 				return;
 
 			switch (keyArgs.Key)
@@ -79,7 +78,8 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void SearchArticle()
 		{
-			if (Input == null || string.IsNullOrEmpty(Input))
+			if (Input == null || 
+				string.IsNullOrEmpty(Input))
 				return;
 
 			foreach (var articleNumber in SplitString(Input))
@@ -153,16 +153,30 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void PinTab(object dataContext, object source)
 		{
-			var context = dataContext as ArticleListViewModel;
-			var sourceContext = source as MenuItem;
-			if (context == null || sourceContext == null) 
+			if (dataContext is not ArticleListViewModel context || 
+				source is not MenuItem sourceContext)
 				return;
+
+			var contextMenu = (ContextMenu)sourceContext.Parent;
+			if (contextMenu == null || 
+				contextMenu?.PlacementTarget is not StackPanel stackPanel)
+				return;
+
+			// Silent error potential yay.
+			if (stackPanel.Children[0] is not TextBlock pinIcon)
+				throw new NullReferenceException($"Couldn't find pin icon for {context.DisplayName}");
 
 			context.IsPinned = !context.IsPinned;
 			if (context.IsPinned)
+			{
 				sourceContext.Header = "Unpin";
+				pinIcon.Visibility = Visibility.Visible;
+			}
 			else
+			{
 				sourceContext.Header = "Pin";
+				pinIcon.Visibility = Visibility.Collapsed;
+			}
 		}
 		public void CreateNewTab()
 		{
@@ -177,8 +191,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void CloseTab(object dataContext)
 		{
-			var context = dataContext as ArticleListViewModel;
-			if (context == null)
+			if (dataContext is not ArticleListViewModel context)
 				return;
 			if (context.IsPinned)
 			{
@@ -196,19 +209,19 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void RenameTab(object source)
 		{
-			var context = source as FrameworkElement;
-			if (context == null) 
+			if (source is not FrameworkElement context)
 				return;
 
-			var contextMenu = (ContextMenu)context.Parent;
-			var stackPanel = contextMenu?.PlacementTarget as StackPanel;
-			if (contextMenu == null || stackPanel == null)
+			if (context.Parent is not ContextMenu contextMenu || 
+				contextMenu?.PlacementTarget is not StackPanel stackPanel)
 				return;
 
-			m_RenameTextBlock = (TextBlock)stackPanel.Children[0];
-			m_RenameTextBox = (TextBox)stackPanel.Children[1];
+			// Most likely the cause of a silent error in the future.
+			// Life is pain!
+			m_RenameTextBlock = stackPanel.Children[1] as TextBlock;
+			m_RenameTextBox = stackPanel.Children[2] as TextBox;
 			if (m_RenameTextBlock == null || m_RenameTextBox == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(nameof(source));
 
 			m_RenameTextBlock.Visibility = Visibility.Collapsed;
 			m_RenameTextBox.Visibility = Visibility.Visible;
@@ -217,15 +230,14 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void RenameTabFinalize(ActionExecutionContext executionContext)
 		{
-			var keyArgs = executionContext.EventArgs as KeyEventArgs;
-			if (keyArgs == null)
+			if (executionContext.EventArgs is not KeyEventArgs keyArgs)
 				return;
 			if (keyArgs.Key != Key.Enter && 
 				keyArgs.Key != Key.Escape)
 				return;
 
 			if (m_RenameTextBlock == null || m_RenameTextBox == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(nameof(executionContext));
 			m_RenameTextBlock.Visibility = Visibility.Visible;
 			m_RenameTextBox.Visibility = Visibility.Collapsed;
 		}

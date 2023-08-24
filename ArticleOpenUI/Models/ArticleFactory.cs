@@ -17,7 +17,7 @@ namespace ArticleOpenUI.Models
 		public static ArticleModel CreateArticle(ArticleInfo info)
 		{
 			if (info == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(nameof(info));
 
 			return new ArticleModel(info);
 		}

@@ -11,8 +11,8 @@ namespace ArticleOpenUI.ViewModels
 {
 	internal class ArticleListViewModel : Screen, INotifyPropertyChanged
 	{
-		private IWindowManager m_WindowManager;
-		private IEventAggregator m_EventAggregator;
+		private readonly IWindowManager m_WindowManager;
+		private readonly IEventAggregator m_EventAggregator;
 
 		public ObservableCollection<ArticleModel> Articles { get; private set; } = new ObservableCollection<ArticleModel>();
 		public bool IsPinned = false;
@@ -32,8 +32,7 @@ namespace ArticleOpenUI.ViewModels
 
 		public bool CanOpenMould(object context)
 		{
-			var item = context as ArticleModel;
-			if (item == null)
+			if (context is not ArticleModel item)
 				return false;
 			if (item.Type == ArticleType.Plastic)
 				return false;
@@ -43,13 +42,12 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public async void OpenMould(object? context)
 		{
-			var article = context as ArticleModel;
-			if (article == null)
+			if (context is not ArticleModel article)
 				return;
 
 			article.GetMouldPaths();
 			if (article.MouldFilePaths.Count > 1)
-				await m_WindowManager.ShowDialogAsync(new MouldSelectViewModel(m_EventAggregator, article));
+				await m_WindowManager.ShowDialogAsync(new MouldSelectViewModel(article));
 			else
 				article.MouldFile = article.MouldFilePaths.First();
 
@@ -66,8 +64,8 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void OpenFolder(object? context)
 		{
-			var article = context as ArticleModel;
-			if (article == null) return;
+			if (context is not ArticleModel article) 
+				return;
 
 			try
 			{
@@ -80,8 +78,8 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void OpenInfo(object? context)
 		{
-			var article = context as ArticleModel;
-			if (article == null) return;
+			if (context is not ArticleModel article) 
+				return;
 
 			try
 			{
@@ -94,9 +92,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void RemoveFromQueue(object? context)
 		{
-			var item = context as ArticleModel;
-
-			if (item == null)
+			if (context is not ArticleModel item)
 				return;
 
 			Articles.Remove(item);
