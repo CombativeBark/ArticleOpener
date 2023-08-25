@@ -38,13 +38,18 @@
 			</Grid.RowDefinitions>
 
 			<!--Row 0-->
-			<TextBox Name="Input" Margin="2"
+			<TextBox Name="Input" Margin="2 2 0 2"
 					 Grid.Row="0" Grid.Column="1"
-					 cal:Message.Attach="[Event KeyDown] = [Action TextBoxEvent($executionContext)]" />
-			<Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="2"
-					MinWidth="80" Margin="2" />
-			<Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="3"
-					MinWidth="64" Margin="2" />
+					 cal:Message.Attach="[Event KeyDown] = [Action TextBoxEvent($executionContext)]"/>
+			<Button x:Name="ClearInput" fa:Awesome.Content="TrashOutline" Grid.Row="0" Grid.Column="2"
+					Width="23" Height="23"
+					ToolTip="Clear input text"/>
+			<Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="3"
+					MinWidth="80" Margin="2" 
+					ToolTip="Search for articles"/>
+			<Button x:Name="ClearQueue" Content="Clear" Grid.Row="0" Grid.Column="4"
+					MinWidth="64" Margin="2" 
+					ToolTip="Clear the article list"/>
 		</Grid>
 
 		<!--Body-->

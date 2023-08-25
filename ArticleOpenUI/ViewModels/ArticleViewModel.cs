@@ -76,6 +76,10 @@ namespace ArticleOpenUI.ViewModels
 					break;
 			}
 		}
+		public void ClearInput()
+		{
+			Input = string.Empty;
+		}
 		public void SearchArticle()
 		{
 			if (Input == null || 
