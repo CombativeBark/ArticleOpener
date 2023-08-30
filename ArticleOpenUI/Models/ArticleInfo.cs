@@ -120,20 +120,17 @@ namespace ArticleOpenUI.Models
 		}
 		private string GenerateUrl()
 		{
-			switch (Type)
+			return Type switch
 			{
-				case ArticleType.Tool:
-					return $@"http://server1:85/tool/{Name}";
-				case ArticleType.Plastic:
-					return $@"http://server1:85/plastic/{Name}";
-				default:
-					throw new ArgumentException($"Article type of {Name} is not support");
-			}
+				ArticleType.Tool => $@"http://server1:85/tool/{Name}",
+				ArticleType.Plastic => $@"http://server1:85/plastic/{Name}",
+				_ => throw new ArgumentException($"Article type of {Name} is not support"),
+			};
 		}
 		// Gets Machine
 		private void ProcessOperations(HtmlNode rootNode)
 		{
-			Regex regex = new Regex(@"^21[1-9]0$", RegexOptions.Compiled);
+			var regex = new Regex(@"^21[1-9]0$", RegexOptions.Compiled);
 
 			foreach (var child in rootNode.ChildNodes[2].ChildNodes)
 			{
@@ -147,7 +144,7 @@ namespace ArticleOpenUI.Models
 		// Gets Material & Shrinkage
 		private void ProcessMaterial(HtmlNode rootNode)
 		{
-			Regex regex = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?(?:\s+)?$");
+			var regex = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?(?:\s+)?$");
 
 			// TODO: Improve Readability
 			foreach (var rootChild in rootNode.ChildNodes[2].ChildNodes)
@@ -187,7 +184,7 @@ namespace ArticleOpenUI.Models
 			var decodedData = WebUtility.HtmlDecode(rawData);
 			var regExResults = Regex.Matches(decodedData, @"(?:\d{6} (?<CAD>\w+) \// (?=(?:[Kk]rymp|\d{6}P))|(?<Plastic>(\d{6}P)) (?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%)|(?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%))");
 
-			foreach (Match result in regExResults)
+			foreach (Match result in regExResults.Cast<Match>())
 			{
 				if (!result.Success ||
 					result.Groups.Count < 1)

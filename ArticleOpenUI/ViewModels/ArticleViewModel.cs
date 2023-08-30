@@ -1,107 +1,59 @@
-﻿using ArticleOpenUI.Models;
+﻿using ArticleOpenUI.Events;
+using ArticleOpenUI.Models;
 using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ArticleOpenUI.ViewModels
 {
-	class ArticleViewModel : Screen
+	class ArticleViewModel : Conductor<IListTabItem>.Collection.OneActive, IHandle<NewTabEvent>
 	{
-		private List<ArticleModel> m_ArticleQueue;
+		private readonly SimpleContainer m_Container;
+		private readonly IEventAggregator m_EventAggregator;
+		private readonly IWindowManager m_WindowManager;
 		private string m_Input;
-		private bool m_OpenToolsFilter;
-		private bool m_OpenPlasticsFilter;
-		private bool m_OpenInfoFilter;
-		private bool m_OpenFoldersFilter;
-		private IEventAggregator m_EventAggregator;
-		private IWindowManager m_WindowManager;
+		private int m_TabCounter;
+		private TextBlock? m_RenameTextBlock;
+		private TextBox? m_RenameTextBox;
 
-		public ObservableCollection<ArticleModel> ArticleList { get; private set; }
 		public string Input
 		{
-			get { return m_Input; }
-			set
-			{
-				m_Input = value;
+			get => m_Input;
+			set 
+			{ 
+				m_Input = value; 
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
-		public bool OpenToolsFilter
+		public ArticleViewModel(SimpleContainer container, IEventAggregator eventAggregator, IWindowManager windowManager)
 		{
-			get
-			{
-				return m_OpenToolsFilter;
-			}
-			set
-			{
-				m_OpenToolsFilter = value;
-				NotifyOfPropertyChange(() => OpenToolsFilter);
-			}
-		}
-		public bool OpenPlasticsFilter
-		{
-			get
-			{
-				return m_OpenPlasticsFilter;
-			}
-			set
-			{
-				m_OpenPlasticsFilter = value;
-				NotifyOfPropertyChange(() => OpenPlasticsFilter);
-			}
-		}
-		public bool OpenInfoFilter
-		{
-			get
-			{
-				return m_OpenInfoFilter;
-			}
-			set
-			{
-				m_OpenInfoFilter = value;
-				NotifyOfPropertyChange(() => OpenInfoFilter);
-			}
-		}
-		public bool OpenFoldersFilter
-		{
-			get
-			{
-				return m_OpenFoldersFilter;
-			}
-			set
-			{
-				m_OpenFoldersFilter = value;
-				NotifyOfPropertyChange(() => OpenFoldersFilter);
-			}
-		}
-
-		public ArticleViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
-		{
-			m_ArticleQueue = new List<ArticleModel>();
-			m_Input = "";
-			m_EventAggregator = eventAggregator;
+			m_Container = container;
 			m_WindowManager = windowManager;
+			m_EventAggregator = eventAggregator;
 
-			OpenToolsFilter = true;
-			OpenPlasticsFilter = true;
-			OpenInfoFilter = true;
-			OpenFoldersFilter = true;
-			ArticleList = new ObservableCollection<ArticleModel>();
+			m_EventAggregator.SubscribeOnUIThread(this);
 
+
+			m_TabCounter = 0;
 #if DEBUG
-			m_Input = "302981V";
+			m_Input = "302981V 304092V";
+#else
+			m_Input = "";
 #endif
+
+			InitializeTabs();
 		}
+
 		public void TextBoxEvent(ActionExecutionContext context)
 		{
-			var keyArgs = context.EventArgs as KeyEventArgs;
-
-			if (keyArgs == null || string.IsNullOrWhiteSpace(Input))
+			if (context.EventArgs is not KeyEventArgs keyArgs || 
+				string.IsNullOrWhiteSpace(Input))
 				return;
 
 			switch (keyArgs.Key)
@@ -116,28 +68,33 @@ namespace ArticleOpenUI.ViewModels
 					break;
 			}
 		}
+		public void ClearInput()
+		{
+			Input = string.Empty;
+		}
 		public void SearchArticle()
 		{
-			if (Input == null || string.IsNullOrEmpty(Input))
+			if (Input == null || 
+				string.IsNullOrEmpty(Input))
 				return;
 
 			foreach (var articleNumber in SplitString(Input))
 			{
 				try
 				{
-					var article = ArticleFactory.CreateArticle(articleNumber);
+					var newArticle = ArticleFactory.CreateArticle(articleNumber);
 
-					AddToQueue(article);
-					if (article.Children != null && article.Children.Any())
+					AddToQueue(newArticle);
+					if (newArticle.Children != null && newArticle.Children.Any())
 					{
-						article.Children.ForEach(x =>
+						newArticle.Children.ForEach(x =>
 						{
 							try
 							{
-								var plasticArticle = ArticleFactory.CreateArticle(x);
-								AddToQueue(plasticArticle);
+								var newPlasticArticle = ArticleFactory.CreateArticle(x);
+								AddToQueue(newPlasticArticle);
 							}
-							catch(Exception e)
+							catch (Exception e)
 							{
 								MessageBox.Show("Error: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 							}
@@ -155,137 +112,21 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 		}
-		public void OpenArticlesInQueue()
-		{
-			if (m_ArticleQueue != null &&
-				m_ArticleQueue.Count > 0)
-			{
-				try
-				{
-					OpenArticles();
-				}
-				catch (Exception e)
-				{
-					MessageBox.Show(e.Message, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-				}
-			}
-			else
-			{
-				MessageBox.Show("No articles to open");
-			}
-		}
-		// Double-click to clear input
+		// TODO: Double-click to clear input
 		public void ClearQueue()
 		{
-			m_ArticleQueue.Clear();
-			ArticleList.Clear();
-		}
-		public bool CanOpenMould(object context)
-		{
-			var item = context as ArticleModel;
-			if (item == null)
-				return false;
-			if (item.Type == ArticleType.Plastic)
-				return false;
-			if (!item.MouldFilePaths.Any())
-				return false;
-			return true;
-		}
-		public async void OpenMould(object? context)
-		{
-			var article = context as ArticleModel;
-			if (article == null)
-				return;
-
-			article.GetMouldPaths();
-			if (article.MouldFilePaths.Count > 1)
-				await m_WindowManager.ShowDialogAsync(new MouldSelectViewModel(m_EventAggregator, article));
-			else
-				article.MouldFile = article.MouldFilePaths.First();
-
-			if (string.IsNullOrEmpty(article.MouldFile))
-				return;
-			try
-			{
-				article.OpenMould();
-			}
-			catch (Exception e)
-			{
-				MessageBox.Show($"{e.Message}\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
-		}
-		public void OpenFolder(object? context)
-		{
-			var article = context as ArticleModel;
-			if (article == null) return;
-
-			try
-			{
-				article.OpenFolder();
-			}
-			catch (Exception e)
-			{
-				MessageBox.Show($"{e.Message}\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
-		}
-		public void OpenInfo(object? context)
-		{
-			var article = context as ArticleModel;
-			if (article == null) return;
-
-			try
-			{
-				article.OpenInfo();
-			}
-			catch (Exception e)
-			{
-				MessageBox.Show($"{e.Message}\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
-		}
-		public void RemoveFromQueue(object? context)
-		{
-			var item = context as ArticleModel;
-
-			if (item == null)
-				return;
-
-			m_ArticleQueue.Remove(item);
-			ArticleList.Remove(item);
-		}
-
-		private void OpenArticles()
-		{
-			m_ArticleQueue.ForEach(article =>
-			{
-
-				if ((!OpenToolsFilter && article.Type == ArticleType.Tool) ||
-				(!OpenPlasticsFilter && article.Type == ArticleType.Plastic))
-					return;
-
-				if (OpenFoldersFilter)
-				{
-					article.OpenFolder();
-				}
-
-				if (OpenInfoFilter)
-				{
-					article.OpenInfo();
-					Thread.Sleep(100);
-				}
-
-			});
+			ActiveItem.Articles.Clear();
 		}
 		private void AddToQueue(ArticleModel article)
 		{
 			if (!IsInQueue(article.Name))
 			{
-				m_ArticleQueue.Add(article);
-				ArticleList.Add(article);
+				ActiveItem.AddArticle(article);
 			}
 		}
 		private bool IsInQueue(string inputArticle)
 		{
-			foreach (var article in m_ArticleQueue)
+			foreach (var article in ActiveItem.Articles)
 			{
 				if (article.Name.Equals(inputArticle))
 					return true;
@@ -305,6 +146,122 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 			return result;
+		}
+		private void InitializeTabs()
+		{
+			CreateNewTabButton();
+			CreateNewTab();
+		}
+		public void PinTab(object dataContext, object source)
+		{
+			if (dataContext is not ArticleListViewModel context || 
+				source is not MenuItem sourceContext)
+				return;
+
+			var contextMenu = (ContextMenu)sourceContext.Parent;
+			if (contextMenu == null || 
+				contextMenu?.PlacementTarget is not StackPanel stackPanel)
+				return;
+
+			// Silent error potential yay.
+			if (stackPanel.Children[0] is not TextBlock pinIcon)
+				throw new NullReferenceException($"Couldn't find pin icon for {context.DisplayName}");
+
+			context.IsPinned = !context.IsPinned;
+			if (context.IsPinned)
+			{
+				sourceContext.Header = "Unpin";
+				pinIcon.Visibility = Visibility.Visible;
+			}
+			else
+			{
+				sourceContext.Header = "Pin";
+				pinIcon.Visibility = Visibility.Collapsed;
+			}
+		}
+		public void CreateNewTab()
+		{
+			var newTab = m_Container.GetInstance<ArticleListViewModel>();
+
+			if (Items.Count == 1)
+			{
+				m_TabCounter = 0;
+			}
+			newTab.NewName = string.Format("Tab {0}", ++m_TabCounter);
+
+			Items.Insert(Items.Count - 1,newTab);
+			ActiveItem = newTab;
+		}
+
+		private void CreateNewTabButton()
+		{
+			Items.Add(m_Container.GetInstance<NewTabListViewModel>());
+		}
+		public string CanCloseTab(object dataContext)
+		{
+			if (dataContext as IListTabItem is null or NewTabListViewModel)
+				return "Collapsed";
+			return "Visible";
+		}
+		public void CloseTab(object dataContext)
+		{
+			if (dataContext is not ArticleListViewModel context)
+				return;
+
+			if (context.IsPinned)
+			{
+				var result = MessageBox.Show($"Are you sure you would like to close '{context.DisplayName}'",
+											 $"Close {context.DisplayName}",
+											 MessageBoxButton.YesNo,
+											 MessageBoxImage.Question);
+				if (result == MessageBoxResult.No)
+					return;
+			}
+
+			if (Items.Count >= 3)
+				ActivateItemAsync(Items[Items.Count() - 3]);
+
+			Items.Remove(context);
+		}
+		public void RenameTab(object source)
+		{
+			if (source is not FrameworkElement context)
+				return;
+
+			if (context.Parent is not ContextMenu contextMenu || 
+				contextMenu?.PlacementTarget is not StackPanel stackPanel)
+				return;
+
+			// Most likely the cause of a silent error in the future.
+			// Life is pain!
+			m_RenameTextBlock = stackPanel.Children[1] as TextBlock;
+			m_RenameTextBox = stackPanel.Children[2] as TextBox;
+			if (m_RenameTextBlock == null || m_RenameTextBox == null)
+				throw new ArgumentNullException(nameof(source));
+
+			m_RenameTextBlock.Visibility = Visibility.Collapsed;
+			m_RenameTextBox.Visibility = Visibility.Visible;
+			m_RenameTextBox.Focus();
+			m_RenameTextBox.SelectAll();
+		}
+		public void RenameTabFinalize(ActionExecutionContext executionContext)
+		{
+			if (executionContext.EventArgs is not KeyEventArgs keyArgs)
+				return;
+			if (keyArgs.Key != Key.Enter && 
+				keyArgs.Key != Key.Escape)
+				return;
+
+			if (m_RenameTextBlock == null || m_RenameTextBox == null)
+				throw new ArgumentNullException(nameof(executionContext));
+			m_RenameTextBlock.Visibility = Visibility.Visible;
+			m_RenameTextBox.Visibility = Visibility.Collapsed;
+		}
+
+		public Task HandleAsync(NewTabEvent message, CancellationToken cancellationToken)
+		{
+			CreateNewTab();
+			return Task.CompletedTask;
 		}
 	}
 }

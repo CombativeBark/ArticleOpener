@@ -83,7 +83,7 @@ namespace ArticleOpenUI.Models
 			if (!Directory.Exists(Path))
 				throw new DirectoryNotFoundException($"Directory for Article {Name} doesn't exist");
 
-			ProcessStartInfo startInfo = new ProcessStartInfo()
+			var startInfo = new ProcessStartInfo()
 			{
 				Arguments = Path,
 				FileName = "explorer.exe"
@@ -110,9 +110,9 @@ namespace ArticleOpenUI.Models
 			if (IsModOrVariant)
 			{
 				if (Type == ArticleType.Tool)
-					basePath = basePath.Substring(0, basePath.Length - 1);
+					basePath = basePath[0..^1];
 				else if (Type == ArticleType.Plastic)
-					basePath = basePath.Substring(0, basePath.Length - 2);
+					basePath = basePath[0..^2];
 			}
 
 			var fullPath = basePath + @"\" + Name;
