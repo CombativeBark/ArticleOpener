@@ -1,41 +1,27 @@
-﻿using ArticleOpenUI.Models;
+﻿using ArticleOpenUI.Events;
+using ArticleOpenUI.Models;
 using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ArticleOpenUI.ViewModels
 {
-	class ArticleViewModel : Conductor<ArticleListViewModel>.Collection.OneActive
+	class ArticleViewModel : Conductor<IListTabItem>.Collection.OneActive, IHandle<NewTabEvent>
 	{
+		private readonly SimpleContainer m_Container;
 		private readonly IEventAggregator m_EventAggregator;
 		private readonly IWindowManager m_WindowManager;
-		private ArticleListViewModel? m_SelectedArticleList;
 		private string m_Input;
 		private int m_TabCounter;
 		private TextBlock? m_RenameTextBlock;
 		private TextBox? m_RenameTextBox;
 
-		public ArticleListViewModel SelectedArticleList
-		{
-			get
-			{
-				if (m_SelectedArticleList == null)
-				{
-					CreateNewTab();
-					m_SelectedArticleList = Items.First();
-				}
-				return m_SelectedArticleList;
-			}
-			set
-			{
-				m_SelectedArticleList = value;
-				NotifyOfPropertyChange(() => SelectedArticleList);
-			}
-		}
 		public string Input
 		{
 			get => m_Input;
@@ -45,10 +31,14 @@ namespace ArticleOpenUI.ViewModels
 				NotifyOfPropertyChange(() => Input);
 			}
 		}
-		public ArticleViewModel(IEventAggregator eventAggregator, IWindowManager windowManager)
+		public ArticleViewModel(SimpleContainer container, IEventAggregator eventAggregator, IWindowManager windowManager)
 		{
-			m_EventAggregator = eventAggregator;
+			m_Container = container;
 			m_WindowManager = windowManager;
+			m_EventAggregator = eventAggregator;
+
+			m_EventAggregator.SubscribeOnUIThread(this);
+
 
 			m_TabCounter = 0;
 #if DEBUG
@@ -56,6 +46,8 @@ namespace ArticleOpenUI.ViewModels
 #else
 			m_Input = "";
 #endif
+
+			InitializeTabs();
 		}
 
 		public void TextBoxEvent(ActionExecutionContext context)
@@ -123,18 +115,18 @@ namespace ArticleOpenUI.ViewModels
 		// TODO: Double-click to clear input
 		public void ClearQueue()
 		{
-			SelectedArticleList.Articles.Clear();
+			ActiveItem.Articles.Clear();
 		}
 		private void AddToQueue(ArticleModel article)
 		{
 			if (!IsInQueue(article.Name))
 			{
-				SelectedArticleList.Articles.Add(article);
+				ActiveItem.AddArticle(article);
 			}
 		}
 		private bool IsInQueue(string inputArticle)
 		{
-			foreach (var article in SelectedArticleList.Articles)
+			foreach (var article in ActiveItem.Articles)
 			{
 				if (article.Name.Equals(inputArticle))
 					return true;
@@ -154,6 +146,11 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 			return result;
+		}
+		private void InitializeTabs()
+		{
+			CreateNewTabButton();
+			CreateNewTab();
 		}
 		public void PinTab(object dataContext, object source)
 		{
@@ -184,32 +181,47 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void CreateNewTab()
 		{
-			var newTab = new ArticleListViewModel(m_WindowManager, m_EventAggregator);
+			var newTab = m_Container.GetInstance<ArticleListViewModel>();
 
-			if (Items.Count == 0)
+			if (Items.Count == 1)
+			{
 				m_TabCounter = 0;
-			newTab.DisplayName = $"Tab {++m_TabCounter}";
+			}
+			newTab.NewName = string.Format("Tab {0}", ++m_TabCounter);
 
-			Items.Add(newTab);
-			SelectedArticleList = newTab;
+			Items.Insert(Items.Count - 1,newTab);
+			ActiveItem = newTab;
+		}
+
+		private void CreateNewTabButton()
+		{
+			Items.Add(m_Container.GetInstance<NewTabListViewModel>());
+		}
+		public string CanCloseTab(object dataContext)
+		{
+			if (dataContext as IListTabItem is null or NewTabListViewModel)
+				return "Collapsed";
+			return "Visible";
 		}
 		public void CloseTab(object dataContext)
 		{
 			if (dataContext is not ArticleListViewModel context)
 				return;
+
 			if (context.IsPinned)
 			{
 				var result = MessageBox.Show($"Are you sure you would like to close '{context.DisplayName}'",
-											 $"Close {context.DisplayName}", 
-											 MessageBoxButton.YesNo, 
+											 $"Close {context.DisplayName}",
+											 MessageBoxButton.YesNo,
 											 MessageBoxImage.Question);
 				if (result == MessageBoxResult.No)
 					return;
 			}
 
+			if (Items.Count >= 3)
+				ActivateItemAsync(Items[Items.Count() - 3]);
+
 			Items.Remove(context);
-			if (Items.Count == 0) 
-				CreateNewTab();
 		}
 		public void RenameTab(object source)
 		{
@@ -244,6 +256,12 @@ namespace ArticleOpenUI.ViewModels
 				throw new ArgumentNullException(nameof(executionContext));
 			m_RenameTextBlock.Visibility = Visibility.Visible;
 			m_RenameTextBox.Visibility = Visibility.Collapsed;
+		}
+
+		public Task HandleAsync(NewTabEvent message, CancellationToken cancellationToken)
+		{
+			CreateNewTab();
+			return Task.CompletedTask;
 		}
 	}
 }

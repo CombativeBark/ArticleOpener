@@ -4,12 +4,52 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:ArticleOpenUI.Views" 
+		xmlns:helpers="clr-namespace:ArticleOpenUI.Helpers"
 		xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
 		xmlns:cal="http://caliburnmicro.com" 
 		xmlns:fa="http://schemas.fontawesome.io/icons/"
 		mc:Ignorable="d"
 		d:DesignHeight="480" d:DesignWidth="960" FontSize="14"
 		Background="white">
+	<UserControl.Resources>
+		<DataTemplate x:Key="NewTabTemplate">
+			<StackPanel Tag="{Binding DataContext, ElementName=Items}"
+						Margin="2"  Orientation="Horizontal">
+				<fa:FontAwesome Icon="Plus" Margin="4 0"
+								HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</StackPanel>
+		</DataTemplate>
+		<DataTemplate x:Key="ArticleListTemplate">
+			<StackPanel Tag="{Binding DataContext, ElementName=Items}" 
+						Margin="2"  Orientation="Horizontal">
+				<StackPanel.ContextMenu>
+					<ContextMenu cal:Action.TargetWithoutContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+						<MenuItem Header="New Tab"
+											  cal:Message.Attach="[Event Click]=[Action CreateNewTab()]"/>
+						<MenuItem Header="Pin"
+											  cal:Message.Attach="[Event Click]=[Action PinTab($dataContext, $source)]"/>
+						<MenuItem Header="Rename"
+											  cal:Message.Attach="[Event Click]=[Action RenameTab($source)]"/>
+						<MenuItem Header="Close"
+											  cal:Message.Attach="[Event Click]=[Action CloseTab($dataContext)]"/>
+					</ContextMenu>
+				</StackPanel.ContextMenu>
+				<fa:FontAwesome Icon="ThumbTack" FontSize="10" 
+											Margin="0 0 4 0" Visibility="Collapsed"
+											HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<TextBlock Name="TabLabel"  Visibility="Visible" Text="{Binding DisplayName}"/>
+				<TextBox Name="TabLabelEdit" Visibility="Collapsed" Text="{Binding NewName}"
+									 cal:Message.Attach="[Event KeyDown]=[Action RenameTabFinalize($executionContext)]"/>
+				<Button fa:Awesome.Content="Times" ToolTip="Close Tab" FontSize="12"
+									Margin="8 0 0 0" Width="auto" 
+									BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+									cal:Message.Attach="[Event Click]=[CloseTab($dataContext)]"/>
+			</StackPanel>
+		</DataTemplate>
+		<helpers:ListTemplateSelector x:Key="ListTemplateSelector"
+									  ArticleListTemplate="{StaticResource ArticleListTemplate}"
+									  NewTabTemplate="{StaticResource NewTabTemplate}"/>
+	</UserControl.Resources>
 	<Grid FocusManager.FocusedElement="{Binding ElementName=Input}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="*"/>
@@ -66,36 +106,9 @@
 			<!--Column 1-->
 			
 			<!--Column 2-->
-			<TabControl Name="Items" SelectedItem="{Binding SelectedArticleList, UpdateSourceTrigger=PropertyChanged}"
-						Grid.Column="2" Padding="0">
-				<TabControl.ItemTemplate>
-					<DataTemplate>
-						<StackPanel Tag="{Binding DataContext, ElementName=Items}" Orientation="Horizontal">
-							<StackPanel.ContextMenu>
-								<ContextMenu cal:Action.TargetWithoutContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-									<MenuItem Header="New Tab"
-											  cal:Message.Attach="[Event Click]=[Action CreateNewTab()]"/>
-									<MenuItem Header="Pin"
-											  cal:Message.Attach="[Event Click]=[Action PinTab($dataContext, $source)]"/>
-									<MenuItem Header="Rename"
-											  cal:Message.Attach="[Event Click]=[Action RenameTab($source)]"/>
-									<MenuItem Header="Close"
-											  cal:Message.Attach="[Event Click]=[Action CloseTab($dataContext)]"/>
-								</ContextMenu>
-							</StackPanel.ContextMenu>
-							<fa:FontAwesome Icon="ThumbTack" FontSize="10" 
-											Margin="0 0 4 0" Visibility="Collapsed"
-											HorizontalAlignment="Center" VerticalAlignment="Center"/>
-							<TextBlock Name="TabLabel"  Visibility="Visible" Text="{Binding DisplayName}"/>
-							<TextBox Name="TabLabelEdit" Visibility="Collapsed" Text="{Binding DisplayName}"
-									 cal:Message.Attach="[Event KeyDown]=[Action RenameTabFinalize($executionContext)]"/>
-							<Button fa:Awesome.Content="Times" x:Name="CloseTab" FontSize="10"
-									Margin="8 0 0 0" Width="auto" 
-									BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-									cal:Message.Attach="[Event Click]=[CloseTab($dataContext)]"/>
-						</StackPanel>
-					</DataTemplate>
-				</TabControl.ItemTemplate>
+			<TabControl Name="Items" SelectedItem="ActiveItem"
+						ItemTemplateSelector="{StaticResource ListTemplateSelector}"
+						Grid.Column="2" Padding="0" BorderThickness="0">
 				<TabControl.ContentTemplate>
 					<DataTemplate>
 						<ContentControl cal:View.Model="{Binding}"/>
