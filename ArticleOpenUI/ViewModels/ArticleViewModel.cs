@@ -112,10 +112,13 @@ namespace ArticleOpenUI.ViewModels
 				}
 			}
 		}
-		// TODO: Double-click to clear input
 		public void ClearQueue()
 		{
-			ActiveItem.Articles.Clear();
+			if (ActiveItem is not ArticleListViewModel article)
+				return;
+
+			article.Articles.Clear();
+			article.RenameTab();
 		}
 		private void AddToQueue(ArticleModel article)
 		{
@@ -187,7 +190,7 @@ namespace ArticleOpenUI.ViewModels
 			{
 				m_TabCounter = 0;
 			}
-			newTab.NewName = string.Format("Tab {0}", ++m_TabCounter);
+			newTab.RenameTab(string.Format("Tab {0}", ++m_TabCounter));
 
 			Items.Insert(Items.Count - 1,newTab);
 			ActiveItem = newTab;

@@ -38,7 +38,7 @@
 											Margin="0 0 4 0" Visibility="Collapsed"
 											HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				<TextBlock Name="TabLabel"  Visibility="Visible" Text="{Binding DisplayName}"/>
-				<TextBox Name="TabLabelEdit" Visibility="Collapsed" Text="{Binding NewName}"
+				<TextBox Name="TabLabelEdit" Visibility="Collapsed" Text="{Binding TabName}"
 									 cal:Message.Attach="[Event KeyDown]=[Action RenameTabFinalize($executionContext)]"/>
 				<Button fa:Awesome.Content="Times" ToolTip="Close Tab" FontSize="12"
 									Margin="8 0 0 0" Width="auto" 

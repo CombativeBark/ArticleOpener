@@ -15,18 +15,21 @@ namespace ArticleOpenUI.ViewModels
 		private static readonly Regex reName = new Regex(@"\[\d+\] (.*)");
 		private readonly IWindowManager m_WindowManager;
 		private readonly IEventAggregator m_EventAggregator;
-		private int m_Count;
-		public int Count { get => m_Count; }
-		public ObservableCollection<ArticleModel> Articles { get; private set; } = new ObservableCollection<ArticleModel>();
-		public string NewName 
+
+		private string m_TabName = "Tab";
+
+		public string TabName 
 		{ 
-			get => DisplayName; 
+			get => m_TabName; 
 			set 
 			{
-				UpdateName(value);
-				NotifyOfPropertyChange(() => NewName);
-			}
+				m_TabName = value;
+				RenameTab(); 
+			} 
 		}
+
+		public int Count { get => Articles.Count; }
+		public ObservableCollection<ArticleModel> Articles { get; private set; } = new ObservableCollection<ArticleModel>();
 		public TabItemType Type { get => TabItemType.ArticleList; }
 
 		public bool IsPinned = false;
@@ -35,14 +38,14 @@ namespace ArticleOpenUI.ViewModels
 		{
 			m_WindowManager = windowManager;
 			m_EventAggregator = eventAggregator;
-			m_Count = 0;
+
+			m_TabName = DisplayName;
 		}
 
 		public void AddArticle(ArticleModel article)
 		{
 			Articles.Add(article);
-			m_Count++;
-			UpdateName();
+			RenameTab();
 			NotifyOfPropertyChange(() => Articles);
 		}
 
@@ -112,22 +115,21 @@ namespace ArticleOpenUI.ViewModels
 				return;
 
 			Articles.Remove(article);
-			m_Count--;
-			UpdateName();
-		}
-		private void UpdateName()
-		{
-			var oldName = DisplayName;
-			var reResult = reName.Match(oldName);
-			if (!reResult.Success)
-				throw new Exception(string.Format("Unexpected tab name '{0}'", oldName));
-
-			DisplayName = string.Format("[{0}] {1}", Count, reResult.Groups[1].Value);
+			RenameTab();
 		}
 
-		private void UpdateName(string newName)
+		// TODO: Separate counter and tab name more to fix rename using the wrong name
+		public void RenameTab(string? newName = null)
 		{
-			DisplayName = string.Format("[{0}] {1}", Count, newName);
+			if (newName is not null)
+				m_TabName = newName;
+
+			DisplayName = AddCounter(m_TabName);
+		}
+
+		private string AddCounter(string name)
+		{
+			return string.Format("[{0}] {1}", Articles.Count, name);
 		}
 	}
 }
