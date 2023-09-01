@@ -1,6 +1,6 @@
-﻿using Caliburn.Micro;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Caliburn.Micro;
 
 namespace ArticleOpenUI.ViewModels
 {

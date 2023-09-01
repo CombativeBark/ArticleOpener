@@ -1,6 +1,7 @@
 ﻿using System;
+using ArticleOpenUI.Models;
 
-namespace ArticleOpenUI.Models
+namespace ArticleOpenUI.Helpers
 {
 	public static class ArticleFactory
 	{

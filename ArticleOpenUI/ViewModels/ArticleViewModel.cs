@@ -1,7 +1,4 @@
-﻿using ArticleOpenUI.Events;
-using ArticleOpenUI.Models;
-using Caliburn.Micro;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,6 +6,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Caliburn.Micro;
+using ArticleOpenUI.Events;
+using ArticleOpenUI.Helpers;
+using ArticleOpenUI.Models;
 
 namespace ArticleOpenUI.ViewModels
 {

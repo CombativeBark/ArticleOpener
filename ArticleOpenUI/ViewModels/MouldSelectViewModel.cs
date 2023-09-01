@@ -1,8 +1,8 @@
-﻿using ArticleOpenUI.Models;
-using Caliburn.Micro;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Caliburn.Micro;
+using ArticleOpenUI.Models;
 
 namespace ArticleOpenUI.ViewModels
 {

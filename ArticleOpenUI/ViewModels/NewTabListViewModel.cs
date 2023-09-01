@@ -1,12 +1,10 @@
-﻿using ArticleOpenUI.Events;
-using ArticleOpenUI.Models;
-using Caliburn.Micro;
-using FontAwesome.WPF;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Caliburn.Micro;
+using ArticleOpenUI.Events;
+using ArticleOpenUI.Models;
 
 namespace ArticleOpenUI.ViewModels
 {

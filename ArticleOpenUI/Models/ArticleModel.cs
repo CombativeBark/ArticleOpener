@@ -1,6 +1,4 @@
-﻿using ArticleOpenUI.ViewModels;
-using Caliburn.Micro;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -91,7 +89,7 @@ namespace ArticleOpenUI.Models
 
 			Process.Start(startInfo);
 		}
-		public void OpenInfo()
+		public void OpenInfoPage()
 		{
 			if (Url == null || string.IsNullOrWhiteSpace(Url))
 				throw new ArgumentNullException(Url, $"URL for Article {Name} is missing.");

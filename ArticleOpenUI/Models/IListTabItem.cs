@@ -1,7 +1,5 @@
-﻿using Caliburn.Micro;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Windows.Documents;
+﻿using System.Collections.ObjectModel;
+using Caliburn.Micro;
 
 namespace ArticleOpenUI.Models
 {

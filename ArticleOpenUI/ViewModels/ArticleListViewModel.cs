@@ -1,12 +1,10 @@
-﻿using ArticleOpenUI.Models;
-using Caliburn.Micro;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using Caliburn.Micro;
+using ArticleOpenUI.Models;
 
 namespace ArticleOpenUI.ViewModels
 {
@@ -48,7 +46,6 @@ namespace ArticleOpenUI.ViewModels
 			RenameTab();
 			NotifyOfPropertyChange(() => Articles);
 		}
-
 		public bool CanOpenMould(object listItem)
 		{
 			if (listItem is not ArticleModel article)
@@ -95,14 +92,14 @@ namespace ArticleOpenUI.ViewModels
 				MessageBox.Show($"{e.Message}\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 		}
-		public void OpenInfo(object? listItem)
+		public void OpenInfoPage(object? listItem)
 		{
 			if (listItem is not ArticleModel article) 
 				return;
 
 			try
 			{
-				article.OpenInfo();
+				article.OpenInfoPage();
 			}
 			catch (Exception e)
 			{
@@ -117,8 +114,6 @@ namespace ArticleOpenUI.ViewModels
 			Articles.Remove(article);
 			RenameTab();
 		}
-
-		// TODO: Separate counter and tab name more to fix rename using the wrong name
 		public void RenameTab(string? newName = null)
 		{
 			if (newName is not null)
@@ -126,7 +121,6 @@ namespace ArticleOpenUI.ViewModels
 
 			DisplayName = AddCounter(m_TabName);
 		}
-
 		private string AddCounter(string name)
 		{
 			return string.Format("[{0}] {1}", Articles.Count, name);
