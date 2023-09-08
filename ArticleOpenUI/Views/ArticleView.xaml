@@ -7,7 +7,7 @@
 		xmlns:helpers="clr-namespace:ArticleOpenUI.Helpers"
 		xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
 		xmlns:cal="http://caliburnmicro.com" 
-		xmlns:fa="http://schemas.fontawesome.io/icons/"
+		xmlns:fa="http://schemas.fontawesome.com/icons/svg/properties"
 		mc:Ignorable="d"
 		d:DesignHeight="480" d:DesignWidth="960" FontSize="14"
 		Background="white">
@@ -15,17 +15,23 @@
 		<DataTemplate x:Key="NewTabTemplate">
 			<StackPanel Tag="{Binding DataContext, ElementName=Items}"
 						Margin="2"  Orientation="Horizontal">
-				<fa:FontAwesome Icon="Plus" Margin="4 0"
-								HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<Image fa:FontAwesome.Icon="Solid_Plus" 
+					   MaxHeight="12" Margin="4"
+					   HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</StackPanel>
 		</DataTemplate>
 		<DataTemplate x:Key="ArticleListTemplate">
-			<StackPanel Tag="{Binding DataContext, ElementName=Items}" 
-						Margin="2"  Orientation="Horizontal">
+			<StackPanel Tag="{Binding DataContext, ElementName=Items}"
+						Margin="0 2"  Orientation="Horizontal">
 				<StackPanel.ContextMenu>
 					<ContextMenu cal:Action.TargetWithoutContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-						<MenuItem Header="New Tab"
-											  cal:Message.Attach="[Event Click]=[Action CreateNewTab()]"/>
+						<MenuItem  Header="New Tab"
+											  cal:Message.Attach="[Event Click]=[Action CreateNewTab()]">
+							<MenuItem.Icon>
+								<Image fa:FontAwesome.Icon="Regular_File"
+												 VerticalAlignment="Center" HorizontalAlignment="Center"/>
+							</MenuItem.Icon>
+						</MenuItem>
 						<MenuItem Header="Pin"
 											  cal:Message.Attach="[Event Click]=[Action PinTab($dataContext, $source)]"/>
 						<MenuItem Header="Rename"
@@ -34,16 +40,17 @@
 											  cal:Message.Attach="[Event Click]=[Action CloseTab($dataContext)]"/>
 					</ContextMenu>
 				</StackPanel.ContextMenu>
-				<fa:FontAwesome Icon="ThumbTack" FontSize="10" 
-											Margin="0 0 4 0" Visibility="Collapsed"
-											HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<Image fa:FontAwesome.Icon="Solid_Thumbtack" Margin="4 0" 
+						MaxHeight="10" Visibility="Collapsed"
+						HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				<TextBlock Name="TabLabel"  Visibility="Visible" Text="{Binding DisplayName}"/>
 				<TextBox Name="TabLabelEdit" Visibility="Collapsed" Text="{Binding TabName}"
-									 cal:Message.Attach="[Event KeyDown]=[Action RenameTabFinalize($executionContext)]"/>
-				<Button fa:Awesome.Content="Times" ToolTip="Close Tab" FontSize="12"
-									Margin="8 0 0 0" Width="auto" 
-									BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-									cal:Message.Attach="[Event Click]=[CloseTab($dataContext)]"/>
+						 cal:Message.Attach="[Event KeyDown]=[Action RenameTabFinalize($executionContext)]"/>
+				<Button fa:FontAwesome.Icon="Solid_Xmark"
+						Margin="8 0 0 0" MinWidth="19" MaxHeight="19" 
+						BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+						ToolTip="Close Tab"
+						cal:Message.Attach="[Event Click]=[CloseTab($dataContext)]"/>
 			</StackPanel>
 		</DataTemplate>
 		<helpers:ListTemplateSelector x:Key="ListTemplateSelector"
@@ -81,7 +88,9 @@
 			<TextBox Name="Input" Margin="2 2 0 2"
 					 Grid.Row="0" Grid.Column="1"
 					 cal:Message.Attach="[Event KeyDown] = [Action TextBoxEvent($executionContext)]"/>
-			<Button x:Name="ClearInput" fa:Awesome.Content="TrashOutline" Grid.Row="0" Grid.Column="2"
+			<Button x:Name="ClearInput" fa:FontAwesome.Icon="Regular_TrashCan"
+					Grid.Row="0" Grid.Column="2"
+					Margin="0 2 2 2"
 					Width="23" Height="23"
 					ToolTip="Clear input text"/>
 			<Button x:Name="SearchArticle" Content="Search" Grid.Row="0" Grid.Column="3"
