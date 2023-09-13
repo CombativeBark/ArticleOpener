@@ -138,7 +138,7 @@ namespace ArticleOpenUI.Models
 		// Gets Material & Shrinkage
 		private void ProcessMaterialTable(HtmlNode materialTable)
 		{
-			var regexMaterial = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])%))?(?:\s+)?$");
+			var regexMaterial = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])(?:-\d(?:[,.]\d+)?)?%))?(?:\s+)?$");
 
 			// TODO: Improve Readability
 			foreach (var tableItem in materialTable.ChildNodes[2].ChildNodes)
