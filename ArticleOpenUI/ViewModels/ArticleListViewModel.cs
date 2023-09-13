@@ -42,6 +42,8 @@ namespace ArticleOpenUI.ViewModels
 
 		public void AddArticle(ArticleModel article)
 		{
+			if (Articles.Count == 0)
+				TabName = article.Customer;
 			Articles.Add(article);
 			RenameTab();
 			NotifyOfPropertyChange(() => Articles);
