@@ -73,7 +73,7 @@ namespace ArticleOpenUI.ViewModels
 		{
 			Input = string.Empty;
 		}
-		public void SearchArticle()
+		// TODO: eat input when after search
 		{
 			if (Input == null || 
 				string.IsNullOrEmpty(Input))
@@ -85,7 +85,7 @@ namespace ArticleOpenUI.ViewModels
 				{
 					var newArticle = ArticleFactory.CreateArticle(articleNumber);
 
-					AddToQueue(newArticle);
+					AddToList(newArticle);
 					if (newArticle.Children != null && newArticle.Children.Any())
 					{
 						newArticle.Children.ForEach(x =>
@@ -93,7 +93,7 @@ namespace ArticleOpenUI.ViewModels
 							try
 							{
 								var newPlasticArticle = ArticleFactory.CreateArticle(x);
-								AddToQueue(newPlasticArticle);
+								AddToList(newPlasticArticle);
 							}
 							catch (Exception e)
 							{
@@ -121,14 +121,14 @@ namespace ArticleOpenUI.ViewModels
 			article.Articles.Clear();
 			article.RenameTab();
 		}
-		private void AddToQueue(ArticleModel article)
+		private void AddToList(ArticleModel article)
 		{
-			if (!IsInQueue(article.Name))
+			if (!IsInList(article.Name))
 			{
 				ActiveItem.AddArticle(article);
 			}
 		}
-		private bool IsInQueue(string inputArticle)
+		private bool IsInList(string inputArticle)
 		{
 			foreach (var article in ActiveItem.Articles)
 			{
