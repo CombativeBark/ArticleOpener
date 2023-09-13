@@ -74,6 +74,7 @@ namespace ArticleOpenUI.ViewModels
 			Input = string.Empty;
 		}
 		// TODO: eat input when after search
+		public void SearchArticle()
 		{
 			if (Input == null || 
 				string.IsNullOrEmpty(Input))
