@@ -54,7 +54,7 @@
 				<DataGridTemplateColumn.CellTemplate>
 					<DataTemplate>
 						<Button MinHeight="26"
-							cal:Message.Attach="[Event Click]=[OpenInfo($dataContext)]">
+							cal:Message.Attach="[Event Click]=[OpenInfoPage($dataContext)]">
 							<Image fa:FontAwesome.Icon="Solid_CircleInfo" Height="14" Width="14"/>
 						</Button>
 					</DataTemplate>
