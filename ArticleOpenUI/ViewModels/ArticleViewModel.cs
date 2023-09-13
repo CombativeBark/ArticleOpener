@@ -102,6 +102,7 @@ namespace ArticleOpenUI.ViewModels
 							}
 						});
 					}
+					ClearInput();
 				}
 				catch (Exception e)
 				{
