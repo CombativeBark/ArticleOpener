@@ -10,6 +10,7 @@ using Caliburn.Micro;
 using ArticleOpenUI.Events;
 using ArticleOpenUI.Helpers;
 using ArticleOpenUI.Models;
+using System.Diagnostics;
 
 namespace ArticleOpenUI.ViewModels
 {
@@ -74,44 +75,49 @@ namespace ArticleOpenUI.ViewModels
 			Input = string.Empty;
 		}
 		// TODO: eat input when after search
+		public async void SearchArticle()
 		{
 			if (Input == null || 
 				string.IsNullOrEmpty(Input))
 				return;
 
-			foreach (var articleNumber in SplitString(Input))
+			var stopwatch = Stopwatch.StartNew();
+			try
 			{
-				try
-				{
-					var newArticle = ArticleFactory.CreateArticle(articleNumber);
+				var articles = await ArticleFactory.CreateArticles(new List<string>(Input.Split(new char[] { ' ', ',', ';' })));
 
-					AddToList(newArticle);
-					if (newArticle.Children != null && newArticle.Children.Any())
+				foreach (var article in articles)
+				{
+					AddToList(article);
+					if (article.Children.Any())
 					{
-						newArticle.Children.ForEach(x =>
+						foreach (var child in article.Children!)
 						{
 							try
 							{
-								var newPlasticArticle = ArticleFactory.CreateArticle(x);
+								var newPlasticArticle = ArticleFactory.CreateArticle(child);
 								AddToList(newPlasticArticle);
 							}
 							catch (Exception e)
 							{
 								MessageBox.Show("Error: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 							}
-						});
+						}
 					}
+
 				}
-				catch (Exception e)
-				{
+			}
+			catch (Exception e)
+			{
 #if (DEBUG)
-					MessageBox.Show($"Error: {e.Message}\n\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show($"Error: {e.Message}\n\n{e.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 #else
 					MessageBox.Show("Error: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 #endif
 
-				}
 			}
+			stopwatch.Stop();
+			MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString());
 		}
 		public void ClearQueue()
 		{
@@ -168,7 +174,7 @@ namespace ArticleOpenUI.ViewModels
 				return;
 
 			// Silent error potential yay.
-			if (stackPanel.Children[0] is not TextBlock pinIcon)
+			if (stackPanel.Children[0] is not Image pinIcon)
 				throw new NullReferenceException($"Couldn't find pin icon for {context.DisplayName}");
 
 			context.IsPinned = !context.IsPinned;

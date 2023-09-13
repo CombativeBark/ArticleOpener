@@ -21,7 +21,7 @@ namespace ArticleOpenUI.Models
 		public string Machine { get; init; } = "";
 		public bool IsModOrVariant { get; private set; } = false;
 		public List<string> MouldFilePaths { get; set; } = new List<string>();
-		public List<ArticleInfo>? Children { get; init; }
+		public List<ArticleInfo> Children { get; set; } = new List<ArticleInfo>();
 
 		public ArticleModel(ArticleInfo info)
 		{
@@ -45,8 +45,6 @@ namespace ArticleOpenUI.Models
 
 			if (info.Plastics is not null && info.Plastics.Any())
 				Children = info.Plastics;
-			else
-				Children = null;
 		}
 
 		public void GetMouldPaths()
