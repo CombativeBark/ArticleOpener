@@ -188,7 +188,7 @@ namespace ArticleOpenUI.Models
 
 				
 				var cadOperatorCapture = infoMatch.Groups["CAD"];
-				if (cadOperatorCapture.Success) 
+				if (cadOperatorCapture.Success && CAD == "Unknown") 
 					CAD = cadOperatorCapture.Value;
 
 				var partNameCapture = infoMatch.Groups["Plastic"];
