@@ -22,7 +22,9 @@ namespace ArticleOpenUI.Models
 		public bool IsModOrVariant { get; private set; } = false;
 		public List<string> MouldFilePaths { get; set; } = new List<string>();
 		public List<ArticleInfo>? Children { get; init; }
-
+		
+		// TODO: Replace constructor with ParseInfo function to remove dependency.
+		// TODO: Create Update() function to update singular articles on demand.
 		public ArticleModel(ArticleInfo info)
 		{
 			if (info is null)
@@ -43,6 +45,7 @@ namespace ArticleOpenUI.Models
 			Machine = info.Machine;
 			GetMouldPaths();
 
+			// TODO: Replace with getter that caches after first use
 			if (info.Plastics is not null && info.Plastics.Any())
 				Children = info.Plastics;
 			else
@@ -65,6 +68,7 @@ namespace ArticleOpenUI.Models
 			MouldFilePaths = mldFiles.ToList();
 		}
 
+		// TODO: Add OpenMouldReadOnly (parameter flag?)
 		public void OpenMould()
 		{
 			var app = new TopSolid.Application();
@@ -102,6 +106,7 @@ namespace ArticleOpenUI.Models
 			Process.Start(startInfo);
 		}
 
+		// TODO: Replace with getter
 		private string GeneratePath()
 		{
 			var basePath = $@"\\server1\ArtikelFiler\ArticleFiles\{Name}";

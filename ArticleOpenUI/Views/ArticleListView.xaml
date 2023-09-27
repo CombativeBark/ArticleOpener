@@ -70,6 +70,8 @@
 					</DataTemplate>
 				</DataGridTemplateColumn.CellTemplate>
 			</DataGridTemplateColumn>
+			<!-- TODO: Update article button -->
+			<!-- TODO: Context Menu -->
 		</DataGrid.Columns>
 	</DataGrid>
 </UserControl>

@@ -40,10 +40,12 @@ namespace ArticleOpenUI.ViewModels
 			m_TabName = DisplayName;
 		}
 
+		// TODO: count customer names in list and add +1 for each over 1
 		public void AddArticle(ArticleModel article)
 		{
 			if (Articles.Count == 0)
 				TabName = article.Customer;
+
 			Articles.Add(article);
 			RenameTab();
 			NotifyOfPropertyChange(() => Articles);

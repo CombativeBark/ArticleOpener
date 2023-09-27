@@ -69,11 +69,15 @@ namespace ArticleOpenUI.ViewModels
 					break;
 			}
 		}
+		/*
+		 * TODO: Replace blind clear input with parsing input to list<string> and
+		 *		 remove individual inputs only on successful search then return
+		 *		 the purged input list to avoid unintentional eating of inputs
+		*/
 		public void ClearInput()
 		{
 			Input = string.Empty;
 		}
-		// TODO: eat input when after search
 		public void SearchArticle()
 		{
 			if (Input == null || 
@@ -169,6 +173,7 @@ namespace ArticleOpenUI.ViewModels
 				contextMenu?.PlacementTarget is not StackPanel stackPanel)
 				return;
 
+			// TODO: Fix silent error :)
 			// Silent error potential yay.
 			if (stackPanel.Children[0] is not TextBlock pinIcon)
 				throw new NullReferenceException($"Couldn't find pin icon for {context.DisplayName}");
