@@ -5,10 +5,11 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using Caliburn.Micro;
 using ArticleOpenUI.Models;
+using ArticleOpenUI.Models.Article;
 
 namespace ArticleOpenUI.ViewModels
 {
-	internal class ArticleListViewModel : Screen, IListTabItem
+    internal class ArticleListViewModel : Screen, IListTabItem
 	{
 		private static readonly Regex reName = new Regex(@"\[\d+\] (.*)");
 		private readonly IWindowManager m_WindowManager;

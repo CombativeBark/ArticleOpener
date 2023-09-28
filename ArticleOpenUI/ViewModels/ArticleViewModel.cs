@@ -10,10 +10,11 @@ using Caliburn.Micro;
 using ArticleOpenUI.Events;
 using ArticleOpenUI.Helpers;
 using ArticleOpenUI.Models;
+using ArticleOpenUI.Models.Article;
 
 namespace ArticleOpenUI.ViewModels
 {
-	class ArticleViewModel : Conductor<IListTabItem>.Collection.OneActive, IHandle<NewTabEvent>
+    class ArticleViewModel : Conductor<IListTabItem>.Collection.OneActive, IHandle<NewTabEvent>
 	{
 		private readonly SimpleContainer m_Container;
 		private readonly IEventAggregator m_EventAggregator;

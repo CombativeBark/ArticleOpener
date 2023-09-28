@@ -8,58 +8,30 @@ using HtmlAgilityPack;
 
 namespace ArticleOpenUI.Models
 {
-	public class ArticleInfo
+	public static class ArticleInfoScraper
 	{
-		public string Name { get; set; } = "";
-		public bool IsModOrVariant { get; set; } = false;
-		public List<ArticleInfo> Plastics { get; set; } = new List<ArticleInfo>();
-		public string CAD { get; set; } = "Unknown";
-		public string Customer { get; set; } = "Unknown";
-		public string Description { get; set; } = "Unknown";
-		public string Material { get; set; } = "Unknown";
-		public Dictionary<string, string> Shrinkage { get; set; } = new Dictionary<string, string>();
-		public string Machine { get; set; } = "Unknown";
+		private static HtmlDocument m_WebDocument { get; set; }
 
-		public ArticleType Type
+		public static ArticleInfoModel GetArticleInfo(string inputName)
 		{
-			get
+			try
 			{
-				if (Regex.IsMatch(Name, @"^\d{6}[VP](?:\d|-\d)$"))
-					IsModOrVariant = true;
-
-				if (Regex.IsMatch(Name, @"^\d{6}V\d?$"))
-					return ArticleType.Tool;
-				else if (Regex.IsMatch(Name, @"^\d{6}P(?:-\d)?$"))
-					return ArticleType.Plastic;
-				else
-					throw new ArgumentException($"Couldn't find type for article {Name}");
+				var output = new ArticleInfoModel(inputName);
+				m_WebDocument = GetWebDocument(output.Url);
+				return output;
 			}
-		}
-		public string Url 
-		{
-			get
+			catch (Exception ex)
 			{
-				return Type switch
-				{
-					ArticleType.Tool => $@"http://server1:85/tool/{Name}",
-					ArticleType.Plastic => $@"http://server1:85/plastic/{Name}",
-					_ => throw new ArgumentException($"Article type of {Name} is not support"),
-				};
+				throw;
 			}
+
 		}
 
-		public ArticleInfo(string name)
+		private static HtmlDocument GetWebDocument(string name)
 		{
-			if (IsNameValid(name))
-				Name = name;
-			else
-				throw new ArgumentException($"{name} is not a valid article.");
-
-			ScrapeInfoPage();
-			TransferShrinkageToPlastics();
+			return new HtmlDocument();
 		}
-
-		private void ScrapeInfoPage()
+		private static void scrape(ref ArticleInfoModel info)
 		{
 			HtmlDocument document;
 			var web = new HtmlWeb();
@@ -68,17 +40,17 @@ namespace ArticleOpenUI.Models
 			web.AutoDetectEncoding = false;
 			web.OverrideEncoding = Encoding.UTF8;
 
-			document = web.Load(Url);
+			document = web.Load(info.Url);
 			if (document == null || web.StatusCode != System.Net.HttpStatusCode.OK)
-				throw new HtmlWebException($"Couldn't load web page for {Name}.");
+				throw new HtmlWebException($"Couldn't load web page for {info.Name}.");
 
 			var rootNode = document.DocumentNode
 				.SelectSingleNode("//body/div[@class='page']/div[@class='main']/div[@class='content px-4']");
 			if (rootNode == null)
-				throw new NodeNotFoundException($"Couldn't find parse web page for {Name}");
+				throw new NodeNotFoundException($"Couldn't find parse web page for {info.Name}");
 
 			var filteredNodeList = rootNode.ChildNodes
-				.Where(x => x.Name != "#text")
+				.Where(node => node.Name != "#text")
 				.ToList();
 
 			for (int i = 1; i < filteredNodeList.Count; i++)
@@ -94,35 +66,35 @@ namespace ArticleOpenUI.Models
 				switch (currentNode.InnerText.ToLower())
 				{
 					case ("customer"):
-						ProcessCustomerTable(nextNodes);
+						ProcessCustomerTable(ref info, nextNodes);
 						break;
 					case ("notes"):
-						ProcessNotesTable(nextNodes[0]);
+						ProcessNotesTable(ref info, nextNodes[0]);
 						break;
 					case ("material"):
-						ProcessMaterialTable(nextNodes[0]);
+						ProcessMaterialTable(ref info, nextNodes[0]);
 						break;
 					case ("operations"):
-						ProcessOperationsTable(nextNodes[0]);
+						ProcessOperationsTable(ref info, nextNodes[0]);
 						break;
 					case ("plastics"):
-						Plastics = ProcessPlastics(nextNodes[0]);
+						info.Plastics = ProcessPlastics(nextNodes[0]);
 						break;
 					default:
 						break;
 				}
 			}
 		}
-		private void ProcessCustomerTable(List<HtmlNode> customerNodes)
+		private static void ProcessCustomerTable(ref ArticleInfoModel info, List<HtmlNode> customerNodes)
 		{
 			var customerProperty = customerNodes[0].SelectNodes(".//td")[0];
-			Customer = WebUtility.HtmlDecode(customerProperty?.InnerText) ?? "";
+			info.Customer = WebUtility.HtmlDecode(customerProperty?.InnerText) ?? "";
 
 			var descriptionProperty = customerNodes[1]?.SelectNodes(".//td")[0];
-			Description = WebUtility.HtmlDecode(descriptionProperty?.InnerText) ?? "";
+			info.Description = WebUtility.HtmlDecode(descriptionProperty?.InnerText) ?? "";
 		}
 		// Gets Machine
-		private void ProcessOperationsTable(HtmlNode operationsTable)
+		private static void ProcessOperationsTable(ref ArticleInfoModel info, HtmlNode operationsTable)
 		{
 			var regex = new Regex(@"^21[1-9]0$", RegexOptions.Compiled);
 
@@ -131,12 +103,12 @@ namespace ArticleOpenUI.Models
 				if (!regex.IsMatch(child.ChildNodes[0].InnerText))
 					continue;
 
-				Machine = WebUtility.HtmlDecode(child.ChildNodes[2].InnerText);
+				info.Machine = WebUtility.HtmlDecode(child.ChildNodes[2].InnerText);
 				break;
 			}
 		}
 		// Gets Material & Shrinkage
-		private void ProcessMaterialTable(HtmlNode materialTable)
+		private static void ProcessMaterialTable(ref ArticleInfoModel info, HtmlNode materialTable)
 		{
 			var regexMaterial = new Regex(@"^\d+(?:-\d)? +- +(?<Material>.+\b\)?)(?: +(?<Shrinkage>(?:\b\d(?:[,.]\d+)?|[Xx])(?:-\d(?:[,.]\d+)?)?%))?(?:\s+)?$");
 
@@ -158,21 +130,21 @@ namespace ArticleOpenUI.Models
 
 				var materialCapture = regexMaterialResult.Groups["Material"];
 				if (materialCapture.Success)
-					Material = materialCapture.Value;
+					info.Material = materialCapture.Value;
 
 				if (regexMaterialResult.Groups.Count < 2)
 					return;
 
 				var shrinkageCapture = regexMaterialResult.Groups["Shrinkage"];
 				if (shrinkageCapture.Success)
-					if (Shrinkage is not null && 
-						!Shrinkage.ContainsKey(Name))
-						Shrinkage.Add(Name, shrinkageCapture.Value);
+					if (info.Shrinkage is not null && 
+						!info.Shrinkage.ContainsKey(info.Name))
+						info.Shrinkage.Add(info.Name, shrinkageCapture.Value);
 
 				break;
 			}
 		}
-		private void ProcessNotesTable(HtmlNode notesTable)
+		private static void ProcessNotesTable(ref ArticleInfoModel info, HtmlNode notesTable)
 		{
 			var regexInfoPattern = @"(?:\d{6} (?<CAD>\w+) \// (?=(?:[Kk]rymp|\d{6}P))|(?<Plastic>(\d{6}P)) (?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%)|(?<Shrinkage>[Kk]rymp\s*\d(?:[,.]\d+)?%))";
 
@@ -188,59 +160,61 @@ namespace ArticleOpenUI.Models
 
 				
 				var cadOperatorCapture = infoMatch.Groups["CAD"];
-				if (cadOperatorCapture.Success && CAD == "Unknown") 
-					CAD = cadOperatorCapture.Value;
+				if (cadOperatorCapture.Success && info.CAD == "Unknown") 
+					info.CAD = cadOperatorCapture.Value;
 
 				var partNameCapture = infoMatch.Groups["Plastic"];
 				var partName = partNameCapture.Value;
 				if (!partNameCapture.Success)
-					partName = Name;
+					partName = info.Name;
 
 				var shrinkageCapture = infoMatch.Groups["Shrinkage"];
 				if (shrinkageCapture.Success)
-					if (Shrinkage is not null && 
-						!Shrinkage.ContainsKey(partName))
-						Shrinkage.Add(partName, shrinkageCapture.Value.ToLower().Replace("krymp ", ""));
+					if (info.Shrinkage is not null && 
+						!info.Shrinkage.ContainsKey(partName))
+						info.Shrinkage.Add(partName, shrinkageCapture.Value.ToLower().Replace("krymp ", ""));
 			}
 		}
-		private List<ArticleInfo> ProcessPlastics(HtmlNode plasticsNode)
+		private static List<string> ProcessPlastics(HtmlNode plasticsNode)
 		{
-			var result = new List<ArticleInfo>();
+			var result = new List<string>();
 
 			var tableItems = plasticsNode.SelectNodes(".//td");
 			for (int i = 0; i < tableItems?.Count; i++)
 			{
 				if (i % 3 == 0 && IsPlasticsNode(tableItems[i]))
-					result.Add(new ArticleInfo(tableItems[i].InnerText));
+					result.Add(tableItems[i].InnerText);
 			}
 
 			return result;
 		}
-		private void TransferShrinkageToPlastics()
+		/*
+		private void TransferShrinkageToPlastics(ref ArticleInfoModel info)
 		{
-			if (Plastics is null ||
-				!Plastics.Any())
+			if (info.Plastics is null ||
+				!info.Plastics.Any())
 				return;
 
-			foreach (var plastic in Plastics)
+			foreach (var plastic in info.Plastics)
 			{
 				if (plastic is null)
 					continue;
-				if (!Shrinkage.ContainsKey(plastic.Name))
+				if (!info.Shrinkage.ContainsKey(plastic.Name))
 					continue;
 
 				if (plastic.Shrinkage.ContainsKey(plastic.Name))
-					plastic.Shrinkage[plastic.Name] = Shrinkage[plastic.Name];
+					plastic.Shrinkage[plastic.Name] = info.Shrinkage[plastic.Name];
 				else
-					plastic.Shrinkage.Add(plastic.Name, Shrinkage[plastic.Name]);
+					plastic.Shrinkage.Add(plastic.Name, info.Shrinkage[plastic.Name]);
 			}
 		}
-		private bool IsPlasticsNode(HtmlNode node)
+		*/
+		private static bool IsPlasticsNode(HtmlNode node)
 		{
 			bool output = Regex.IsMatch(node.InnerText, @"^\d{6}P(?:-\d)?$");
 			return output;
 		}
-		private bool IsNameValid(string name)
+		private static bool IsValidArticleID(string name)
 		{
 			if (name == null ||
 				string.IsNullOrWhiteSpace(name) ||

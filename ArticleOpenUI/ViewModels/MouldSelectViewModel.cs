@@ -2,11 +2,11 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using Caliburn.Micro;
-using ArticleOpenUI.Models;
+using ArticleOpenUI.Models.Article;
 
 namespace ArticleOpenUI.ViewModels
 {
-	class MouldSelectViewModel : Screen
+    class MouldSelectViewModel : Screen
 	{
 		private readonly Dictionary<string, string> m_MouldHashes;
 		private readonly ArticleModel m_ReferencedArticle;

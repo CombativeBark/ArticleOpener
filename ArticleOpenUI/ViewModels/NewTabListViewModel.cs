@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Caliburn.Micro;
 using ArticleOpenUI.Events;
 using ArticleOpenUI.Models;
+using ArticleOpenUI.Models.Article;
 
 namespace ArticleOpenUI.ViewModels
 {
-	class NewTabListViewModel : Screen, IListTabItem
+    class NewTabListViewModel : Screen, IListTabItem
 	{
 		private readonly IEventAggregator m_EventAggregator;
 		public ObservableCollection<ArticleModel> Articles { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
