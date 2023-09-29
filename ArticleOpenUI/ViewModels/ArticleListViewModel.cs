@@ -28,7 +28,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 
 		public int Count { get => Articles.Count; }
-		public ObservableCollection<ArticleModel> Articles { get; private set; } = new ObservableCollection<ArticleModel>();
+		public ObservableCollection<IArticle> Articles { get; private set; } = new ObservableCollection<IArticle>();
 		public TabItemType Type { get => TabItemType.ArticleList; }
 
 		public bool IsPinned = false;
@@ -42,7 +42,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 
 		// TODO: count customer names in list and add +1 for each over 1
-		public void AddArticle(ArticleModel article)
+		public void AddArticle(IArticle article)
 		{
 			if (Articles.Count == 0)
 				TabName = article.Customer;
@@ -53,9 +53,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public bool CanOpenMould(object listItem)
 		{
-			if (listItem is not ArticleModel article)
-				return false;
-			if (article.Type == ArticleType.Plastic)
+			if (listItem is not ToolModel article)
 				return false;
 			if (!article.MouldFilePaths.Any())
 				return false;
@@ -63,17 +61,15 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public async void OpenMould(object? listItem)
 		{
-			if (listItem is not ArticleModel article)
+			if (listItem is not ToolModel article)
 				return;
 
-			article.GetMouldPaths();
+			article.UpdateMouldPaths();
 			if (article.MouldFilePaths.Count > 1)
 				await m_WindowManager.ShowDialogAsync(new MouldSelectViewModel(article));
 			else
-				article.MouldFile = article.MouldFilePaths.First();
+				article.SelectedMouldFileIndex = 0;
 
-			if (string.IsNullOrEmpty(article.MouldFile))
-				return;
 			try
 			{
 				article.OpenMould();
@@ -85,7 +81,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void OpenFolder(object? listItem)
 		{
-			if (listItem is not ArticleModel article) 
+			if (listItem is not ArticleBase article) 
 				return;
 
 			try
@@ -99,12 +95,12 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void OpenInfoPage(object? listItem)
 		{
-			if (listItem is not ArticleModel article) 
+			if (listItem is not ArticleBase article) 
 				return;
 
 			try
 			{
-				article.OpenInfoPage();
+				article.OpenInfo();
 			}
 			catch (Exception e)
 			{
@@ -113,7 +109,7 @@ namespace ArticleOpenUI.ViewModels
 		}
 		public void RemoveFromQueue(object? listItem)
 		{
-			if (listItem is not ArticleModel article)
+			if (listItem is not IArticle article)
 				return;
 
 			Articles.Remove(article);

@@ -9,13 +9,13 @@ namespace ArticleOpenUI.ViewModels
     class MouldSelectViewModel : Screen
 	{
 		private readonly Dictionary<string, string> m_MouldHashes;
-		private readonly ArticleModel m_ReferencedArticle;
+		private readonly ToolModel m_ReferencedArticle;
 
 		public string Name { get; init; }
 		public ObservableCollection<string> MouldFiles { get; private set; }
 		public string SelectedFile { get; set; }
 
-		public MouldSelectViewModel(ArticleModel article)
+		public MouldSelectViewModel(ToolModel article)
 		{
 			m_MouldHashes= new Dictionary<string, string>();
 			MouldFiles = new ObservableCollection<string>();
@@ -31,7 +31,7 @@ namespace ArticleOpenUI.ViewModels
 		public void SelectFile()
 		{
 			if (SelectedFile != string.Empty)
-				m_ReferencedArticle.MouldFile = m_MouldHashes[SelectedFile];
+				m_ReferencedArticle.SelectedMouldFileIndex = m_ReferencedArticle.MouldFilePaths.IndexOf(m_MouldHashes[SelectedFile]);
 			TryCloseAsync();
 		}
 		

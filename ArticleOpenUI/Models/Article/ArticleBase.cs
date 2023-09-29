@@ -10,29 +10,13 @@ namespace ArticleOpenUI.Models.Article
 {
 	public abstract class ArticleBase : IArticle
 	{
-		private bool isModOrVariant;
-
-		private string m_Name;
-		public string Name { get => m_Name; set => m_Name = value; }
-		private string m_Url;
-		public string Url { get => m_Url; set => m_Url = value; }
-		private string m_Path;
-		public string Path { get => m_Path; set => m_Path = value; }
-		private string m_Customer;
-		public string Customer { get => m_Customer; set => m_Customer = value; }
-		private string m_Description;
-		public string Description { get => m_Description; set => m_Description = value; }
-		private string m_Machine;
-		public string Machine { get => m_Machine; set => m_Machine = value; }
-		private string m_Material;
-		public string Material { get => m_Material; set => m_Material = value; }
-		private string m_Shrinkage;
-		public string Shrinkage { get => m_Shrinkage; set => m_Shrinkage = value; }
-
-		private ArticleBase()
-        {
-			// Not allowed to instatiate base class    
-        }
+		public abstract string Name { get; set; }
+		public abstract string Url { get; set; }
+		public abstract string Path { get; set; }
+		public abstract string Customer { get; set; }
+		public abstract string Machine { get; set; }
+		public abstract string Shrinkage { get; set; }
+		public abstract bool IsSpecial { get; set; }
 
         public void OpenFolder()
 		{
@@ -47,7 +31,7 @@ namespace ArticleOpenUI.Models.Article
 
             Process.Start(startInfo);
 		}
-		public void OpenInfoPage()
+		public void OpenInfo()
 		{
             if (Url == null || string.IsNullOrWhiteSpace(Url))
                 throw new ArgumentNullException(Url, $"URL for Article {Name} is missing.");

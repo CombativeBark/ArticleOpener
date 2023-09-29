@@ -1,27 +1,52 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using ArticleOpenUI.Models;
 using ArticleOpenUI.Models.Article;
+using ArticleOpenUI.Models.InfoScraper;
 
 namespace ArticleOpenUI.Helpers
 {
     public static class ArticleFactory
 	{
-		public static ArticleModel CreateArticle(string name)
+		public static readonly HtmlAgilityPack.HtmlWeb Web = new();
+		public static readonly ToolInfoScraper toolInfoScraper = new ToolInfoScraper(Web);
+		//public static readonly PlasticInfoScraper plasticInfoScraper = new PlasticInfoScraper();
+
+		public static List<IArticle> CreateArticle(params string[] articles)
 		{
-			var articleName = name.ToUpper();
-			var info = (articleName);
+			List<IArticle> output = new List<IArticle>();
 
-			if (info == null)
-				throw new ArgumentException($"Error: Can't process info for article {articleName}");
+			foreach (string article in articles)
+				output.Add(CreateArticle(article));
 
-			return new ArticleModel(info);
+			return output;
 		}
-		public static ArticleModel CreateArticle(ArticleInfoModel info)
-		{
-			if (info == null)
-				throw new ArgumentNullException(nameof(info));
 
-			return new ArticleModel(info);
+		public static IArticle CreateArticle(string name)
+		{
+			if (name.Trim().ToUpper() is not string normalizedName)
+				throw new ArgumentException(nameof(name));
+			
+			IArticle article;
+
+			switch (normalizedName[6])
+			{
+				case 'V':
+					article = new ToolModel();
+					article.Name = normalizedName;
+					toolInfoScraper.GatherInfo(article);
+					break;
+					/*
+				case 'P':
+					article = new PlasticModel();
+					break;
+					*/
+				default:
+					throw new ArgumentException($"Article name {name} doesn't contain type identifier");
+			}
+
+			return article;
 		}
 	}
 }

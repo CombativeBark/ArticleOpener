@@ -12,10 +12,10 @@ namespace ArticleOpenUI.ViewModels
     class NewTabListViewModel : Screen, IListTabItem
 	{
 		private readonly IEventAggregator m_EventAggregator;
-		public ObservableCollection<ArticleModel> Articles { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public ObservableCollection<IArticle> Articles { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 		public TabItemType Type { get => TabItemType.NewTab; }
 
-		public void AddArticle(ArticleModel article)
+		public void AddArticle(IArticle article)
 		{
 			throw new NotImplementedException();
 		}

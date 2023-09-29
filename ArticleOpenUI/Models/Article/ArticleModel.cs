@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace ArticleOpenUI.Models.Article
 {
-    public class ArticleModel : IArticle
+    public class ArticleModel 
     {
         public string Name { get; set; } = "";
         public string Path { get; set; } = "";
@@ -19,7 +19,7 @@ namespace ArticleOpenUI.Models.Article
         public string Material { get; set; } = "";
         public string Shrinkage { get; set; } = "";
         public string Machine { get; set; } = "";
-        public bool IsModOrVariant { get; set; } = false;
+        public bool IsSpecial { get; set; } = false;
         public List<string> MouldFilePaths { get; set; } = new List<string>();
         public List<string>? Children { get; set; }
 
@@ -32,7 +32,7 @@ namespace ArticleOpenUI.Models.Article
 
             Name = info.Name;
             Type = info.Type;
-            IsModOrVariant = info.IsModOrVariant;
+            IsSpecial = info.IsModOrVariant;
             Url = info.Url;
             Path = GeneratePath();
 
@@ -61,7 +61,7 @@ namespace ArticleOpenUI.Models.Article
             MouldFile = "";
 
             var path = Path;
-            if (IsModOrVariant)
+            if (IsSpecial)
                 path += @$"\{Name}";
             var files = Directory.GetFiles(@$"{path}\CAD");
             var mldFiles = files.Where(x => x.EndsWith(".mld"));
@@ -84,7 +84,7 @@ namespace ArticleOpenUI.Models.Article
         private string GeneratePath()
         {
             var basePath = $@"\\server1\ArtikelFiler\ArticleFiles\{Name}";
-            if (IsModOrVariant)
+            if (IsSpecial)
             {
                 if (Type == ArticleType.Tool)
                     basePath = basePath[0..^1];
@@ -94,7 +94,7 @@ namespace ArticleOpenUI.Models.Article
 
             var fullPath = basePath + @"\" + Name;
 
-            if (IsModOrVariant)
+            if (IsSpecial)
                 return basePath;
 
             return fullPath;

@@ -48,7 +48,6 @@ namespace ArticleOpenUI.ViewModels
 #else
 			m_Input = "";
 #endif
-
 			InitializeTabs();
 		}
 
@@ -92,6 +91,7 @@ namespace ArticleOpenUI.ViewModels
 					var newArticle = ArticleFactory.CreateArticle(articleNumber);
 
 					AddToList(newArticle);
+					/* NOT IMPLEMENTED YET
 					if (newArticle.Children != null && newArticle.Children.Any())
 					{
 						newArticle.Children.ForEach(x =>
@@ -107,6 +107,7 @@ namespace ArticleOpenUI.ViewModels
 							}
 						});
 					}
+					*/
 					ClearInput();
 				}
 				catch (Exception e)
@@ -128,7 +129,7 @@ namespace ArticleOpenUI.ViewModels
 			article.Articles.Clear();
 			article.RenameTab();
 		}
-		private void AddToList(ArticleModel article)
+		private void AddToList(IArticle article)
 		{
 			if (!IsInList(article.Name))
 			{
