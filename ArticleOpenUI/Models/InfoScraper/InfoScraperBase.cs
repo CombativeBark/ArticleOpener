@@ -115,17 +115,17 @@ namespace ArticleOpenUI.Models.InfoScraper
 			for (int i = 0; i < tableRows.Count; i++)
 			{
 				var row = tableRows[i];
-				var kvp = new Dictionary<string, string>();
+				var rowValues = new Dictionary<string, string>();
 				for (int j = 0; j < row.ChildNodes.Count; j++)
 				{
-					// [0] = Pgrp, [1] = Description, etc...
+					// keys[0] = Pgrp, [1] = Description, etc...
 					var key = keys[j];
-					// [0] = 1010, [1] = Projekt, etc...
+					// row.ChildNodes[0] = 1010, [1] = Projekt, etc...
 					var value = WebUtility.HtmlDecode(row.ChildNodes[j].InnerText);
 
-					kvp.Add(key, value);
+					rowValues.Add(key, value);
 				}
-				output.Add(kvp);
+				output.Add(rowValues);
 			}
 
 			return output;
