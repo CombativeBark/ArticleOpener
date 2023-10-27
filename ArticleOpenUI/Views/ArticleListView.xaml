@@ -12,7 +12,7 @@
 			  Grid.Column="2" AutoGenerateColumns="False" 
 			  IsReadOnly="True" CanUserResizeRows="False" 
 			  CanUserDeleteRows="False" CanUserAddRows="False" 
-			  HeadersVisibility="Column">
+			  HeadersVisibility="Column" AlternatingRowBackground="#FFF0F0F0">
 		<DataGrid.Columns>
 			<DataGridTextColumn Binding="{Binding Name}" Header="Article"
 										MinWidth="64" MaxWidth="80"/>
